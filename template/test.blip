@@ -1,0 +1,12 @@
+@context title string
+<head>
+    <title>@= title@</title>
+
+</head>
+<body>
+    @yield body@
+
+    @yield javascript@
+
+    (c)Copyright 2022
+</body>

@@ -1,0 +1,117 @@
+
+Blip - Go Templates
+
+The intent is to create template html files with go code included.
+A conversion step with convert these to go file with the name of the template
+and a process() function.
+
+The process function takes arguments as specified in the template.
+
+===========
+Example:  hello.gte
+@arg name string
+
+// Records this as input to the template
+@context name User
+
+<h1>@= name@</h1>
+
+converts to:
+
+var hello1 []byte = []byte("<h1>")
+var hello2 []byte = []byte("</h1>\n")
+func Hello(name string, w io.Writer) error {
+	w.Write(hello1)
+	w.Write([]byte(fmt.Sprint(name)))
+	w.Write(hello2)
+	return nil
+}
+
+Benefits:
+* compile time type checking
+* run time performance
+
+=========
+template commands.
+
+@arg specifies an argument to the template
+@// Single line comment
+@* multiline comment
+*@
+
+// standard output (noescaping)
+@== foo@
+> fmt.Print(foo)
+
+// Safe html output (escape output)
+@= foo @
+@= foo.method(blah)@  <-transform to below.
+  > fmt.Print(  html.EscapeString( foo.method(blah)) )
+
+
+
+Call into another template and pass contents.
+!! What about arguments !!
+@include templateName arg1, arg2 @ <-- .. no content added .. simple include
+  -- Note after template name the args are embedded as is
+
+
+@extend templateName arg1, arg2 {@
+    -- Note after template name the args are embedded as is
+    @content positionName {@
+        Some content to include
+
+        @include templateName {@
+            Nested capabilities
+            Some content to include
+        @}
+
+    @}
+
+@}
+
+Embeddable template
+@yield positionName @
+Translates to a function call
+
+if position name is not presented by the caller it will not produce anything.
+
+
+
+
+
+Note the expression must convert to a string
+@import  go import to be injected
+
+@{
+    full code block ... will be embedded in the result
+    use w for writing to actually produce some output.
+    The si variable can be used to call helper functions
+@}
+
+@func
+define a full function in here. It will be embedded as is at the end of the file.
+@}
+ex:
+@func
+func toUpper(str string) string {
+    return strings.ToUpper(str)
+}
+@}
+
+======= Additional features =======
+Note:  Most commands are expected to end on the same line and will return errors if not.
+Ex:
+@extend name args {@
+...
+
+
+
+
+
+
+
+
+
+
+

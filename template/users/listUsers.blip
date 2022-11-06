@@ -1,0 +1,15 @@
+@import "blip/template"
+
+@import "strings"
+
+
+@arg name string
+@include template.head "User Page" @
+Hi @= name @
+@extend template.test {@@content body {@The list of all users@}@}
+The end of the line
+@func
+func toUpper(str string) string {
+    return strings.ToUpper(str)
+}
+@}

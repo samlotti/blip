@@ -1,0 +1,4 @@
+@arg title string
+<html>
+    @= title @
+</html>
