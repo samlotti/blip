@@ -1,8 +1,8 @@
 package include_basic_example
 
 import (
+	"blip/blipUtil"
 	"blip/manual"
-	"blip/support"
 	"context"
 	"fmt"
 	"html"
@@ -14,7 +14,7 @@ var base1 = []byte("<h1>")
 var base2 = []byte("</h1>\n")
 
 func BaseProcess(c context.Context, w io.Writer) (terror error) {
-	var si = support.Instance()
+	var si = blipUtil.Instance()
 	defer func() {
 		if err := recover(); err != nil {
 			terror = fmt.Errorf("%v", err)

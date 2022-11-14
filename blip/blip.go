@@ -16,7 +16,7 @@ func main() {
 	flag.StringVar(&goptions.Sdir, "dir", "./template", "The source directory containing templates")
 	flag.BoolVar(&goptions.Rebuild, "rebuild", false, "rebuild all files")
 	flag.BoolVar(&goptions.Watch, "watch", false, "will watch the directory for file names/new files")
-	flag.StringVar(&goptions.SupportBranch, "supportBranch", "github.com/samlotti/blip/support", "Support branch name for include.")
+	flag.StringVar(&goptions.SupportBranch, "supportBranch", "github.com/samlotti/blip/blipUtil", "Support branch name for include.")
 
 	flag.Parse()
 

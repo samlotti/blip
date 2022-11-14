@@ -1,8 +1,8 @@
 package include_w_content
 
 import (
+	"blip/blipUtil"
 	"blip/manual"
-	"blip/support"
 	"context"
 	"fmt"
 	"html"
@@ -15,7 +15,7 @@ var base2 = []byte("</body>\n")
 var base3 = []byte("\n")
 
 func BaseProcess(c context.Context, w io.Writer) (terror error) {
-	var si = support.Instance()
+	var si = blipUtil.Instance()
 	defer func() {
 		if err := recover(); err != nil {
 			terror = fmt.Errorf("%v", err)
@@ -32,7 +32,7 @@ func BaseProcess(c context.Context, w io.Writer) (terror error) {
 	si.Write(w, base1)
 
 	// @= title@
-	// if err = si.Write(w, []byte(support.Instance().GetCtxStr(c, "title"))); err != nil {
+	// if err = si.Write(w, []byte(blipUtil.Instance().GetCtxStr(c, "title"))); err != nil {
 	si.WriteStr(w, html.EscapeString(title))
 
 	si.Write(w, base3)

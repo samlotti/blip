@@ -13,6 +13,10 @@ Example:  hello.gte
 
 // Records this as input to the template
 @context name User
+Note that if the "name" is not placed in the context then the render
+@context name User = some initial value
+In this case if "name" is not passed in, it will retain the initial value.
+
 
 <h1>@= name@</h1>
 
@@ -106,8 +110,20 @@ Ex:
 ...
 
 
+=== Conditional support ===
+@if .. go expression {@
+template content
+@else
+template content
+@endif
 
+=== Looping construct ===
+@for error in errors {@
+    // for idx, error := range errors {
+@endfor
+    // }
 
+====
 
 
 

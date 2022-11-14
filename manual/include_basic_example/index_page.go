@@ -1,8 +1,8 @@
 package include_basic_example
 
 import (
+	"blip/blipUtil"
 	"blip/manual"
-	"blip/support"
 	"context"
 	"fmt"
 	"io"
@@ -14,7 +14,7 @@ var indexpage2 []byte = []byte("</tr>\n")
 // IndexPageProcess
 // @arg games []Game
 func IndexPageProcess(games []manual.Game, c context.Context, w io.Writer) (terror error) {
-	var si = support.Instance()
+	var si = blipUtil.Instance()
 	defer func() {
 		if err := recover(); err != nil {
 			terror = fmt.Errorf("%v", err)

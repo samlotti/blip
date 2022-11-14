@@ -1,8 +1,8 @@
 package include_w_content
 
 import (
+	"blip/blipUtil"
 	"blip/manual"
-	"blip/support"
 	"context"
 	"fmt"
 	"io"
@@ -14,7 +14,7 @@ var indexpage2 []byte = []byte("</td>\n")
 // IndexPageContentProcess
 // @arg games []Game
 func IndexPageContentProcess(games []manual.Game, c context.Context, w io.Writer) (terror error) {
-	var si = support.Instance()
+	var si = blipUtil.Instance()
 	defer func() {
 		if err := recover(); err != nil {
 			terror = fmt.Errorf("%v", err)

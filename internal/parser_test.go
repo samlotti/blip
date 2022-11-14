@@ -21,13 +21,13 @@ func SimpleProcess(n string, p1 string, p2 string, c context.Context, w io.Write
 	return
 }
 func InnerProcess(c context.Context, w io.Writer) (terror error) {
-	var si = support.Instance()
+	var si = blipUtil.Instance()
 	w.Write([]byte(fmt.Sprintf("InnerProcess\n")))
 	si.CallCtxFunc(c, "title")
 	return
 }
 func TableProcess(n string, c context.Context, w io.Writer) (terror error) {
-	var si = support.Instance()
+	var si = blipUtil.Instance()
 	w.Write([]byte(fmt.Sprintf("TableProcess:%s \n", n)))
 	si.CallCtxFunc(c, "game")
 	return
@@ -89,6 +89,16 @@ Hello @= user.Name@!
 			@}
 		@}
 
+		@for   error in errors {@
+			@= error @
+		@endfor
+
+		@if error!=nil {@
+			content
+		@else
+			content2
+		@endif
+	
 	@}
 @}
 Goodbye!!

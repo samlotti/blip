@@ -22,6 +22,11 @@ const (
 	NODE_DISPLAY_RAW
 	NODE_TOKEN_RAW
 	NODE_YIELD
+	NODE_IF
+	NODE_FOR
+	NODE_ELSE
+	NODE_ENDIF
+	NODE_ENDFOR
 )
 
 type ast interface {
@@ -176,6 +181,22 @@ func (p *Parser) parseNode(node ast, isRoot bool) {
 			if p.validateNoNewline(token) {
 				node.addChild(newAst(node, NODE_YIELD, token))
 			}
+		case IF:
+			if p.validateNoNewline(token) {
+				node.addChild(newAst(node, NODE_IF, token))
+			}
+		case FOR:
+			if p.validateNoNewline(token) {
+				if p.validateFor(token) {
+					node.addChild(newAst(node, NODE_FOR, token))
+				}
+			}
+		case ELSE:
+			node.addChild(newAst(node, NODE_ELSE, token))
+		case ENDIF:
+			node.addChild(newAst(node, NODE_ENDIF, token))
+		case ENDFOR:
+			node.addChild(newAst(node, NODE_ENDIF, token))
 
 		default:
 			p.addError(token, fmt.Sprintf("Parser error Unexpected: %s:%s", token.Type, token.Literal))
@@ -354,7 +375,7 @@ func (p *Parser) outputImports(o io.Writer, opt *BlipOptions) {
 
 	if !p.hasErrors() {
 		imports["\""+opt.SupportBranch+"\""] = ""
-		// imports["\"github.com/samlotti/blip/support\""] = ""
+		// imports["\"github.com/samlotti/blip/blipUtil\""] = ""
 	}
 	imports["\"context\""] = ""
 	imports["\"io\""] = ""
@@ -420,9 +441,12 @@ func (p *Parser) writeMainFunction(o io.Writer, templateName string) {
 
 	p.wStr(o, "c context.Context, w io.Writer ) ")
 	p.wStr(o, `(terror error) {
-	var si = support.Instance()
+	var si = blipUtil.Instance()
 	defer func() {
 		if err := recover(); err != nil {
+			fmt.Printf("Catch panic %s: %s\n", "`)
+	p.wStr(o, p.convertTemplateNameToFunctionName(templateName))
+	p.wStr(o, `", err)
 			terror = fmt.Errorf("%v", err)
 		}
 	}()
@@ -507,11 +531,23 @@ func (p *Parser) writeBody(node ast, depth int, o io.Writer) {
 
 		case NODE_CONTENT:
 			// var f1 = func() {
-			p.wStr(o, fmt.Sprintf("%svar contentF%d = func() {\n", tabs, p.includeDepth))
+			p.wStr(o, fmt.Sprintf("%svar contentF%d = func() (terror error) {\n", tabs, p.includeDepth))
 
 		case NODE_YIELD:
 			// 	si.CallCtxFunc(c, "myJavascript")
-			p.wStr(o, fmt.Sprintf("%ssi.CallCtxFunc(c, \"%s\")\n", tabs, p.trimAll(base.token.Literal)))
+			p.wStr(o, fmt.Sprintf("%sterror = si.CallCtxFunc(c, \"%s\")\n", tabs, p.trimAll(base.token.Literal)))
+			p.wStr(o, fmt.Sprintf("%sif terror != nil { return }\n", tabs))
+
+		case NODE_IF:
+			p.wStr(o, fmt.Sprintf("%sif %s {\n", tabs, p.trimAll(base.token.Literal)))
+		case NODE_FOR:
+			p.WriteNodeForStatement(o, base, depth)
+		case NODE_ELSE:
+			p.wStr(o, fmt.Sprintf("%s} else {\n", tabs))
+		case NODE_ENDIF:
+			p.wStr(o, fmt.Sprintf("%s}\n", tabs))
+		case NODE_ENDFOR:
+			p.wStr(o, fmt.Sprintf("%s}\n", tabs))
 
 		default:
 			// Force compiler error.. should never happen unless I add new nodes and forget to implement
@@ -527,9 +563,11 @@ func (p *Parser) writeBody(node ast, depth int, o io.Writer) {
 			p.includeDepth -= 1
 		case NODE_CONTENT:
 			// var f1 = func() {
+			p.wStr(o, fmt.Sprintf("%sreturn\n", p.getTabsDepth(depth+1)))
 			p.wStr(o, fmt.Sprintf("%s}\n", tabs))
 			p.wStr(o, fmt.Sprintf("%s%s = context.WithValue(%s, ", tabs, p.contextVarName(), p.contextVarName()))
 			p.wStr(o, fmt.Sprintf("\"%s\", contentF%d)", p.trimAll(base.token.Literal), p.includeDepth))
+
 		}
 
 	}
@@ -553,18 +591,48 @@ func (p *Parser) writeArgVar(o io.Writer) {
 }
 
 func (p *Parser) writeContentVar(o io.Writer) {
+
 	for _, c := range p.context {
+
+		eq := " := "
+		var addNullCheck = false
+		if strings.Contains(c.Literal, "=") {
+			eq = " = "
+			// ex: @context errors []string = make([]string,0)
+			p.wStr(o, "\tvar ")
+			p.wStr(o, c.Literal)
+			p.wStr(o, "\n")
+			addNullCheck = true
+
+		}
 		// 	user := c.Value("user").(manual.User)
 		split := strings.Split(strings.Trim(c.Literal, " "), " ")
+
+		if addNullCheck {
+			// if c.Value("errors") != nil {
+			p.wStr(o, "\tif c.Value(\"")
+			p.wStr(o, split[0])
+			p.wStr(o, "\") != nil {")
+			p.wNL(o)
+			p.wStr(o, "\t")
+		}
+
 		p.wStr(o, "\t")
 		p.wStr(o, split[0])
-		p.wStr(o, " := ")
+		p.wStr(o, eq)
 		p.wStr(o, "c.Value(\"")
 		p.wStr(o, split[0])
 		p.wStr(o, "\").(")
 		p.wStr(o, split[1])
 		p.wStr(o, ")")
 		p.wNL(o)
+
+		if addNullCheck {
+			// if c.Value("errors") != nil {
+			p.wStr(o, "\t}")
+			p.wNL(o)
+		}
+
 	}
 }
 
@@ -623,5 +691,29 @@ func (p *Parser) validateNoNewline(token *Token) bool {
 		return false
 	}
 	return true
+
+}
+
+func (p *Parser) splitFor(token *Token) []string {
+	return strings.Split(strings.Trim(token.Literal, " "), " ")
+}
+
+func (p *Parser) validateFor(token *Token) bool {
+	sects := p.splitFor(token)
+	if len(sects) != 3 {
+		p.addError(token, fmt.Sprintf("@for expected:  `variable in list` found %d components, note remove any extra spaces", len(sects)))
+		return false
+	}
+	if sects[1] != "in" {
+		p.addError(token, fmt.Sprintf("@for expected:  `variable in list` found %s instead of  `in`", sects[1]))
+		return false
+	}
+	return true
+
+}
+
+func (p *Parser) WriteNodeForStatement(o io.Writer, base *astBase, depth int) {
+	sects := p.splitFor(base.token)
+	p.wStr(o, fmt.Sprintf("%sfor idx, %s := range %s { _ = idx\n", p.getTabsDepth(depth), sects[0], sects[2]))
 
 }

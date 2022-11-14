@@ -395,3 +395,36 @@ func TestCodeBaseExtendInvalid(t *testing.T) {
 	fmt.Printf("M:%s at %d\n", tk.Literal, tk.Line)
 
 }
+
+func TestCodeBaseIf(t *testing.T) {
+	sample := `@if errors != nil {@
+<div>test1</div>
+@else
+<div>test2</div>
+@endif
+`
+	lex := NewLexer(string(sample), "TestLexer1")
+	var tk = lex.NextToken()
+
+	// Illegal since {@ was not ound
+
+	assert.Equal(t, IF, string(tk.Type))
+	fmt.Printf("M:%s at %d\n", tk.Literal, tk.Line)
+
+	tk = lex.NextToken()
+	assert.Equal(t, LITERAL, string(tk.Type))
+	fmt.Printf("M:%s at %d\n", tk.Literal, tk.Line)
+
+	tk = lex.NextToken()
+	assert.Equal(t, ELSE, string(tk.Type))
+	fmt.Printf("M:%s at %d\n", tk.Literal, tk.Line)
+
+	tk = lex.NextToken()
+	assert.Equal(t, LITERAL, string(tk.Type))
+	fmt.Printf("M:%s at %d\n", tk.Literal, tk.Line)
+
+	tk = lex.NextToken()
+	assert.Equal(t, ENDIF, string(tk.Type))
+	fmt.Printf("M:%s at %d\n", tk.Literal, tk.Line)
+
+}

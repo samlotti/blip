@@ -32,6 +32,11 @@ const (
 	ENDBLOCK        = "@}"       // The end of block style commands
 	STARTBLOCK      = "@{"       // Start of a code block
 	FUNCTS          = "@func"    // functions
+	IF              = "@if"      // The if statement convert to if <content> {
+	ELSE            = "@else"    // converts to } else {
+	ENDIF           = "@endif"   // converts to }
+	FOR             = "@for"     // convert for for range loop
+	ENDFOR          = "@endfor"  // converts to }
 
 )
 
@@ -315,6 +320,12 @@ func (l *Lexer) pickCommand() Token {
 	case "@yield":
 		tkn = l.newTokenStr(YIELD, l.readTilStrSingleLine([]rune("@")))
 		advance = true
+	case "@if":
+		tkn = l.newTokenStr(IF, l.readTilStrSingleLine([]rune("{@")))
+		advance = true
+	case "@for":
+		tkn = l.newTokenStr(FOR, l.readTilStrSingleLine([]rune("{@")))
+		advance = true
 	case "@content":
 		tkn = l.newTokenStr(CONTENT, l.readTilStrSingleLine([]rune("{@")))
 		advance = true
@@ -343,6 +354,15 @@ func (l *Lexer) pickCommand() Token {
 		tkn = l.newTokenStr(CONTEXT, l.readTil(EOL))
 		// consume the eol
 		advance = true
+	case "@else":
+		tkn = l.newTokenStr(ELSE, cmd)
+		advance = false
+	case "@endif":
+		tkn = l.newTokenStr(ENDIF, cmd)
+		advance = false
+	case "@endfor":
+		tkn = l.newTokenStr(ENDFOR, cmd)
+		advance = false
 	case "@import":
 		tkn = l.newTokenStr(IMPORT, l.readTil(EOL))
 		// consume the eol
