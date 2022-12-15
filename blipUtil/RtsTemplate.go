@@ -89,3 +89,11 @@ func (t *BlipUtil) AddCtxError(ctx context.Context, message string) context.Cont
 	ctx = context.WithValue(ctx, "errors", errors)
 	return ctx
 }
+
+// HasError
+// Return true if there were errors added to the context
+// To support
+//  @context errors []string = make([]string,0)
+func (t *BlipUtil) HasError(ctx context.Context) bool {
+	return ctx.Value("errors") != nil
+}
