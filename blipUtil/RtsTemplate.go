@@ -6,6 +6,7 @@ import (
 	"html"
 	"io"
 	"log"
+	"strconv"
 )
 
 // BlipUtil From a code block
@@ -96,4 +97,15 @@ func (t *BlipUtil) AddCtxError(ctx context.Context, message string) context.Cont
 //  @context errors []string = make([]string,0)
 func (t *BlipUtil) HasError(ctx context.Context) bool {
 	return ctx.Value("errors") != nil
+}
+
+func (t *BlipUtil) WriteInt(w io.Writer, val int) {
+	_, err := w.Write([]byte(strconv.Itoa(val)))
+	if err != nil {
+		if err != nil {
+			log.Println(fmt.Sprintf("blip had error writing: %s\n", err))
+		}
+		panic(err)
+	}
+
 }

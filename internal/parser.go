@@ -19,6 +19,7 @@ const (
 	NODE_CODEBLOCK
 	NODE_DISPLAY
 	NODE_DISPLAY_RAW
+	NODE_DISPLAY_INT
 	NODE_TOKEN_RAW
 	NODE_YIELD
 	NODE_IF
@@ -161,6 +162,8 @@ func (p *Parser) parseNode(node ast, isRoot bool) {
 			}
 		case ATDisplay:
 			node.addChild(newAst(node, NODE_DISPLAY, token))
+		case ATDisplayInt:
+			node.addChild(newAst(node, NODE_DISPLAY_INT, token))
 		case ATDisplayUnsafe:
 			node.addChild(newAst(node, NODE_DISPLAY_RAW, token))
 		case IMPORT:
@@ -515,6 +518,9 @@ func (p *Parser) writeBody(node ast, depth int, o io.Writer) {
 			// si.WriteStr(w, game.Opponent)
 			p.wStr(o, fmt.Sprintf("%ssi.WriteStrSafe(w, %s)\n", tabs, p.addSlashes(base.token.Literal)))
 		// f.Sp "si.Write(w, indexpage1)")
+		case NODE_DISPLAY_INT:
+			// si.WriteStr(w, game.Opponent)
+			p.wStr(o, fmt.Sprintf("%ssi.WriteInt(w, %s)\n", tabs, p.addSlashes(base.token.Literal)))
 		case NODE_DISPLAY_RAW:
 			// si.WriteStr(w, game.Opponent)
 			p.wStr(o, fmt.Sprintf("%ssi.WriteStr(w, %s)\n", tabs, p.addSlashes(base.token.Literal)))

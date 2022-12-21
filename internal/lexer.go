@@ -22,6 +22,7 @@ const (
 	LITERAL         = "LITERAL"
 	ARG             = "@arg"     // Literal will be the remainder of the line
 	CONTEXT         = "@context" // Context variable expected
+	ATDisplayInt    = "@int="    // write integer
 	ATDisplay       = "@="       // Literal will be up to the eol/eof or next @   @= name @
 	ATDisplayUnsafe = "@=="      // Literal will be up to the eol/eof or next @   @= name @
 	IMPORT          = "@import"  // Placed at the begging for go imports
@@ -336,6 +337,9 @@ func (l *Lexer) pickCommand() Token {
 	case "@extend":
 		//tkn = l.getExtendToken()
 		tkn = l.newTokenStr(EXTEND, l.readTilStrSingleLine([]rune("{@")))
+		advance = true
+	case "@int=":
+		tkn = l.newTokenStr(ATDisplayInt, l.readTilStrSingleLine([]rune{'@'}))
 		advance = true
 	case "@==":
 		// tkn = l.newTokenStr(ATDisplayUnsafe, l.readTils([]rune{EOL, '@'}))

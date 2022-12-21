@@ -52,6 +52,8 @@ template commands.
 @= foo.method(blah)@  <-transform to below.
   > fmt.Print(  html.EscapeString( foo.method(blah)) )
 
+// Writes the same as ItoA
+@int= intValue @
 
 
 Call into another template and pass contents.
