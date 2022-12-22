@@ -480,9 +480,9 @@ func (p *Parser) addSlashes(str string) string {
 			buf.WriteString("\\n")
 		case '\t':
 			buf.WriteString("\\t")
-		case '\'':
-			buf.WriteRune('\\')
-			buf.WriteRune(char)
+		//case '\'':
+		//	buf.WriteRune('\\')
+		//	buf.WriteRune(char)
 		case '"':
 			buf.WriteRune('\\')
 			buf.WriteRune(char)
