@@ -54,6 +54,7 @@ template commands.
 
 // Writes the same as ItoA
 @int= intValue @
+@int64= intValue @
 
 
 Call into another template and pass contents.

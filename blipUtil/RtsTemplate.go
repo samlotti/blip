@@ -107,5 +107,14 @@ func (t *BlipUtil) WriteInt(w io.Writer, val int) {
 		}
 		panic(err)
 	}
+}
 
+func (t *BlipUtil) WriteInt64(w io.Writer, val int64) {
+	_, err := w.Write([]byte(strconv.FormatInt(val, 10)))
+	if err != nil {
+		if err != nil {
+			log.Println(fmt.Sprintf("blip had error writing: %s\n", err))
+		}
+		panic(err)
+	}
 }
