@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-var Version = "0.7.3"
+var Version = "0.7.4"
 var Name = "Blip Template Compiler"
 
 type BlipOptions struct {
@@ -201,7 +201,7 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 		fmt.Printf("Error creating: %s : %s", destFName, err)
 		return
 	}
-	parser.renderOutput(dfile, dirSects[len(dirSects)-1], fileSects[0], opt)
+	NewRender(parser).RenderOutput(dfile, dirSects[len(dirSects)-1], fileSects[0], opt)
 	err = dfile.Close()
 	if err != nil {
 		fmt.Printf("Error closing: %s : %s", destFName, err)

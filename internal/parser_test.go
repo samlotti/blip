@@ -120,7 +120,7 @@ Goodbye!!
 
 	// assert.Equal(t, "t", tkn.Literal)
 	fmt.Print("\n\n========================================\n")
-	parser.renderOutput(os.Stdout, "template", "index", &BlipOptions{
+	NewRender(parser).RenderOutput(os.Stdout, "template", "index", &BlipOptions{
 		SupportBranch: "",
 	})
 	fmt.Print("\n========================================\n\n")
