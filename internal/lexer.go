@@ -333,7 +333,7 @@ func (l *Lexer) pickCommand() Token {
 		tkn = l.newTokenStr(FOR, l.readTil(EOL))
 		advance = true
 	case "@content":
-		tkn = l.newTokenStr(CONTENT, l.readTilStrSingleLine([]rune("{@")))
+		tkn = l.newTokenStr(CONTENT, l.readTil(EOL))
 		advance = true
 	case "@include":
 		// tkn = l.getIncludeToken()

@@ -74,7 +74,7 @@ Hello @= user.Name@!
 @include simple user.Name, game.P1, game.P2 
 @yield cheese 
 @extend table user.Name 
-	@content game {@
+	@content game 
 		This is a game against @= game.P1 @ and @= game.P2 @
 		@{
 			// Start block
@@ -84,9 +84,9 @@ Hello @= user.Name@!
 		@}
 
 		@extend inner 
-			@content title {@
+			@content title 
 				<tr></tr>
-			@}
+			@end
 		@end
 
 		@for   error in errors 
@@ -99,7 +99,7 @@ Hello @= user.Name@!
 			content2
 		@endif
 	
-	@}
+	@end
 @end
 Goodbye!!
 `

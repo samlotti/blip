@@ -120,9 +120,9 @@ func (p *Parser) Parse() {
 	p.parseNode(p.root, true)
 }
 
-func (p *Parser) parseNode(node ast, isRoot bool) {
+func (p *Parser) parseNode(node ast, isRoot bool) *Token {
 
-	// On input if the next token
+	// On input is the next token
 
 	for {
 		token := p.lex.NextToken()
@@ -131,7 +131,7 @@ func (p *Parser) parseNode(node ast, isRoot bool) {
 			if isRoot {
 				p.addError(token, fmt.Sprintf("Unexpected %s found", token.Type))
 			}
-			return
+			return token
 		case FUNCTS:
 			if !isRoot {
 				p.addError(token, "functions are only allowed at root")
@@ -139,9 +139,9 @@ func (p *Parser) parseNode(node ast, isRoot bool) {
 			p.processFunction(node, token)
 		case EOF:
 			if !isRoot {
-				p.addError(token, "Unexpected EOF, was there a missing @} ?")
+				p.addError(token, "Unexpected EOF, was there a missing @end ?")
 			}
-			return
+			return token
 		case LITERAL:
 			node.addChild(newAst(node, NODE_TOKEN, token))
 		case ARG:
@@ -178,9 +178,9 @@ func (p *Parser) parseNode(node ast, isRoot bool) {
 			}
 		case EXTEND:
 			if p.validateNoNewline(token) {
-				p.processInclude(node, token)
+				p.processExtend(node, token)
 			}
-			// node.addChild(newAst(node, NODE_INCLUDE, p.processInclude(node, token)))
+			// node.addChild(newAst(node, NODE_INCLUDE, p.processExtend(node, token)))
 		case STARTBLOCK:
 			p.processCodeBlock(node, token)
 		case YIELD:
@@ -193,24 +193,44 @@ func (p *Parser) parseNode(node ast, isRoot bool) {
 			}
 		case FOR:
 			if p.validateNoNewline(token) {
-				if p.validateFor(token) {
-					node.addChild(newAst(node, NODE_FOR, token))
+				if p.validateForStatementCommand(token) {
+					p.processForBlock(node, token)
+					// node.addChild(newAst(node, NODE_FOR, token))
 				}
 			}
+		case ENDFOR:
+			node.addChild(newAst(node, NODE_ENDFOR, token))
+			if isRoot {
+				p.addError(token, fmt.Sprintf("Unexpected %s found", token.Type))
+			}
+			return token
 		case ELSE:
 			node.addChild(newAst(node, NODE_ELSE, token))
 		case ENDIF:
 			node.addChild(newAst(node, NODE_ENDIF, token))
-		case ENDFOR:
-			node.addChild(newAst(node, NODE_ENDIF, token))
 		case END:
 			node.addChild(newAst(node, NODE_END, token))
+			if isRoot {
+				p.addError(token, fmt.Sprintf("Unexpected %s found", token.Type))
+			}
+			return token
 
 		default:
 			p.addError(token, fmt.Sprintf("Parser error Unexpected: %s:%s", token.Type, token.Literal))
 		}
 	}
 
+}
+
+// processForBlock
+// Code blocks are placed inline with literal output
+func (p *Parser) processForBlock(parent ast, token *Token) {
+	child := newAst(parent, NODE_FOR, token)
+	parent.addChild(child)
+	endToken := p.parseNode(child, false)
+	if endToken.Type != ENDFOR {
+		p.addError(token, fmt.Sprintf("Expected %s found %s at line %d, unterminated @for block ", ENDFOR, endToken.Type, endToken.Line))
+	}
 }
 
 // processCodeBlock
@@ -271,34 +291,43 @@ func (p *Parser) processFunction(parent ast, token *Token) {
 
 }
 
-// processInclude
+// processExtend
 // This node type has content, but must only be @content entries.
 // Non-blank literals are ignored
-func (p *Parser) processInclude(parent ast, token *Token) {
+func (p *Parser) processExtend(parent ast, token *Token) {
 	// Process until end
-	// node.addChild(newAst(node, NODE_INCLUDE, p.processInclude(node, token)))
+	// node.addChild(newAst(node, NODE_INCLUDE, p.processExtend(node, token)))
 	child := newAst(parent, NODE_INCLUDE, token)
 	parent.addChild(child)
 
+	trimErrors := false
 	for {
-		token := p.lex.NextToken()
-		switch token.Type {
+		token2 := p.lex.NextToken()
+		switch token2.Type {
 
 		case LITERAL:
-			if p.IsLiteralWhiteSpace(token.Literal) {
+			if p.IsLiteralWhiteSpace(token2.Literal) {
 				// ok
 			} else {
 				p.addError(token, "Include blocks content must be embedded in a content block (@content)")
 			}
 
 		case CONTENT:
-			p.processContent(child, token)
+			p.processContent(child, token2)
+
 		case END:
 			return
 
 		case EOF:
 			p.addError(token, "Expected end of include, unexpected EOF")
 			return
+
+		default:
+			if !trimErrors {
+				p.addError(token, fmt.Sprintf("Unexpected %s at line %d", token2.Type, token2.Line))
+				trimErrors = true
+			}
+
 		}
 	}
 
@@ -306,11 +335,18 @@ func (p *Parser) processInclude(parent ast, token *Token) {
 
 func (p *Parser) processContent(parent ast, token *Token) {
 	// Process until end
-	// node.addChild(newAst(node, NODE_INCLUDE, p.processInclude(node, token)))
+	// node.addChild(newAst(node, NODE_INCLUDE, p.processExtend(node, token)))
 	child := newAst(parent, NODE_CONTENT, token)
 	parent.addChild(child)
 
-	p.parseNode(child, false)
+	if strings.Contains(token.Literal, "@") {
+		p.addError(token, fmt.Sprintf("@content has invalid characters, @ not expected"))
+	}
+
+	endNode := p.parseNode(child, false)
+	if endNode.Type != END {
+		p.addError(token, "Content not terminated, expected @end")
+	}
 
 }
 
@@ -381,7 +417,7 @@ func (p *Parser) validateNoNewline(token *Token) bool {
 
 }
 
-func (p *Parser) validateFor(token *Token) bool {
+func (p *Parser) validateForStatementCommand(token *Token) bool {
 	sects := p.splitFor(token)
 	if len(sects) != 3 {
 		p.addError(token, fmt.Sprintf("@for expected:  `variable in list` found %d components, note remove any extra spaces", len(sects)))

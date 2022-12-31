@@ -249,7 +249,13 @@ func (r *Render) writeBody(node ast, depth int, o io.Writer) {
 		case NODE_ENDIF:
 			r.wStr(o, fmt.Sprintf("%s}\n", tabs))
 		case NODE_END:
-			r.wStr(o, fmt.Sprintf("%s}\n", tabs))
+			if node.(*astBase).nodeType == NODE_CONTENT {
+				// We don't actually write the end block when on a content block.
+				// due to the way contents are done as lambda functions
+			} else {
+				r.wStr(o, fmt.Sprintf("%s}\n", tabs))
+			}
+
 		case NODE_ENDFOR:
 			r.wStr(o, fmt.Sprintf("%s}\n", tabs))
 
@@ -267,6 +273,7 @@ func (r *Render) writeBody(node ast, depth int, o io.Writer) {
 			r.includeDepth -= 1
 		case NODE_CONTENT:
 			// var f1 = func() {
+			r.wStr(o, fmt.Sprintf("%s// End of content block\n", r.getTabsDepth(depth+1)))
 			r.wStr(o, fmt.Sprintf("%sreturn\n", r.getTabsDepth(depth+1)))
 			r.wStr(o, fmt.Sprintf("%s}\n", tabs))
 			r.wStr(o, fmt.Sprintf("%s%s = context.WithValue(%s, ", tabs, r.contextVarName(), r.contextVarName()))

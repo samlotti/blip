@@ -156,7 +156,7 @@ After2
 
 func TestInclude(t *testing.T) {
 	sample := `@extend head args
-@content myContent {@
+@content myContent 
 After2
 @extend tail `
 	lex := NewLexer(string(sample), "TestLexer1")
@@ -176,7 +176,7 @@ After2
 
 	tkn = lex.NextToken()
 	assert.Equal(t, LITERAL, string(tkn.Type))
-	assert.Equal(t, "\nAfter2\n", string(tkn.Literal))
+	assert.Equal(t, "After2\n", string(tkn.Literal))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, EXTEND, string(tkn.Type))
