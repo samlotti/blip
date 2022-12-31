@@ -59,7 +59,7 @@ func TestHello(t *testing.T) {
 
 	tkn = lex.NextToken()
 	assert.Equal(t, LITERAL, string(tkn.Type))
-	assert.Equal(t, "<h1>", string(tkn.Literal))
+	assert.Equal(t, "\n<h1>", string(tkn.Literal))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, ATDisplay, string(tkn.Type))
@@ -133,8 +133,9 @@ Last
 }
 
 func TestIncludeSimple(t *testing.T) {
-	sample := `@include head @After2
-@include tail @`
+	sample := `@include head 
+After2
+@include tail `
 	lex := NewLexer(string(sample), "TestLexer1")
 	tkn := lex.NextToken()
 	assert.Equal(t, INCLUDE, string(tkn.Type))
@@ -154,10 +155,10 @@ func TestIncludeSimple(t *testing.T) {
 }
 
 func TestInclude(t *testing.T) {
-	sample := `@extend head args{@
+	sample := `@extend head args
 @content myContent {@
 After2
-@extend tail {@`
+@extend tail `
 	lex := NewLexer(string(sample), "TestLexer1")
 	tkn := lex.NextToken()
 	assert.Equal(t, EXTEND, string(tkn.Type))
@@ -167,7 +168,7 @@ After2
 	//assert.Equal(t, LITERAL, string(tkn.Type))
 	//assert.Equal(t, "\n", string(tkn.Literal))
 
-	assert.Equal(t, "\n", lex.NextToken().Literal)
+	// assert.Equal(t, "\n", lex.NextToken().Literal)
 
 	tkn = lex.NextToken()
 	assert.Equal(t, CONTENT, string(tkn.Type))
@@ -223,7 +224,7 @@ After2
 //}
 
 func TestYield(t *testing.T) {
-	sample := `@yield head @
+	sample := `@yield head 
 After2
 @}`
 	lex := NewLexer(string(sample), "TestLexer1")
@@ -233,7 +234,7 @@ After2
 
 	tkn = lex.NextToken()
 	assert.Equal(t, LITERAL, string(tkn.Type))
-	assert.Equal(t, "\nAfter2\n", string(tkn.Literal))
+	assert.Equal(t, "After2\n", string(tkn.Literal))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, ENDBLOCK, string(tkn.Type))
@@ -382,22 +383,21 @@ func (l *Lexer) readTils(chars []rune) string {
 
 }
 
-func TestCodeBaseExtendInvalid(t *testing.T) {
-	sample := `@extend root "Index Page" @{
-@}
-@import "templates"`
-	lex := NewLexer(string(sample), "TestLexer1")
-	var tk = lex.NextToken()
-
-	// Illegal since {@ was not ound
-
-	assert.Equal(t, ILLEGAL, string(tk.Type))
-	fmt.Printf("M:%s at %d\n", tk.Literal, tk.Line)
-
-}
+//func TestCodeBaseExtendInvalid(t *testing.T) {
+//	sample := `@extend root "Index Page" @{
+//@}
+//@import "templates"`
+//	lex := NewLexer(string(sample), "TestLexer1")
+//	var tk = lex.NextToken()
+//
+//	// Illegal since {@ was not ound
+//	fmt.Printf("M:%s at %d\n", tk.Literal, tk.Line)
+//	assert.Equal(t, ILLEGAL, string(tk.Type))
+//
+//}
 
 func TestCodeBaseIf(t *testing.T) {
-	sample := `@if errors != nil {@
+	sample := `@if errors != nil 
 <div>test1</div>
 @else
 <div>test2</div>

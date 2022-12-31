@@ -37,6 +37,7 @@ const (
 	IF              = "@if"      // The if statement convert to if <content> {
 	ELSE            = "@else"    // converts to } else {
 	ENDIF           = "@endif"   // converts to }
+	END             = "@end"     // converts to }
 	FOR             = "@for"     // convert for for range loop
 	ENDFOR          = "@endfor"  // converts to }
 
@@ -314,30 +315,36 @@ func (l *Lexer) pickCommand() Token {
 
 	cmd := l.readTils([]rune{' ', '\n'})
 
-	l.readChar()
+	if l.ch != '\n' {
+		l.readChar()
+	}
+
 	advance := false
 
 	var tkn Token
 	switch cmd {
 	case "@yield":
-		tkn = l.newTokenStr(YIELD, l.readTilStrSingleLine([]rune("@")))
+		tkn = l.newTokenStr(YIELD, l.readTil(EOL))
 		advance = true
 	case "@if":
-		tkn = l.newTokenStr(IF, l.readTilStrSingleLine([]rune("{@")))
+		tkn = l.newTokenStr(IF, l.readTil(EOL))
 		advance = true
 	case "@for":
-		tkn = l.newTokenStr(FOR, l.readTilStrSingleLine([]rune("{@")))
+		tkn = l.newTokenStr(FOR, l.readTil(EOL))
 		advance = true
 	case "@content":
 		tkn = l.newTokenStr(CONTENT, l.readTilStrSingleLine([]rune("{@")))
 		advance = true
 	case "@include":
 		// tkn = l.getIncludeToken()
-		tkn = l.newTokenStr(INCLUDE, l.readTilStrSingleLine([]rune("@")))
+		tkn = l.newTokenStr(INCLUDE, l.readTil(EOL))
 		advance = true
 	case "@extend":
 		//tkn = l.getExtendToken()
-		tkn = l.newTokenStr(EXTEND, l.readTilStrSingleLine([]rune("{@")))
+		tkn = l.newTokenStr(EXTEND, l.readTil(EOL))
+		//if strings.Contains(tkn.Literal, "@") {
+		//	tkn = l.newTokenStr(ILLEGAL, fmt.Sprintf("@ invalid in the : %s", tkn.Type))
+		//}
 		advance = true
 	case "@int=":
 		tkn = l.newTokenStr(ATDisplayInt, l.readTilStrSingleLine([]rune{'@'}))
@@ -363,13 +370,16 @@ func (l *Lexer) pickCommand() Token {
 		// consume the eol
 		advance = true
 	case "@else":
-		tkn = l.newTokenStr(ELSE, cmd)
+		tkn = l.newTokenStr(ELSE, "")
 		advance = false
 	case "@endif":
-		tkn = l.newTokenStr(ENDIF, cmd)
+		tkn = l.newTokenStr(ENDIF, "")
+		advance = false
+	case "@end":
+		tkn = l.newTokenStr(END, "")
 		advance = false
 	case "@endfor":
-		tkn = l.newTokenStr(ENDFOR, cmd)
+		tkn = l.newTokenStr(ENDFOR, "")
 		advance = false
 	case "@import":
 		tkn = l.newTokenStr(IMPORT, l.readTil(EOL))

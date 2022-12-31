@@ -114,7 +114,8 @@ Ex:
 
 
 === Conditional support ===
-@if .. go expression {@
+// Note that the expression is til end of line!
+@if .. go expression
 template content
 @else
 template content

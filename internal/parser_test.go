@@ -71,9 +71,9 @@ func doIt3() {
 
 @}
 Hello @= user.Name@!
-@include simple user.Name, game.P1, game.P2 @
-@yield cheese @
-@extend table user.Name {@
+@include simple user.Name, game.P1, game.P2 
+@yield cheese 
+@extend table user.Name 
 	@content game {@
 		This is a game against @= game.P1 @ and @= game.P2 @
 		@{
@@ -83,24 +83,24 @@ Hello @= user.Name@!
 			// End Block
 		@}
 
-		@extend inner {@
+		@extend inner 
 			@content title {@
 				<tr></tr>
 			@}
-		@}
+		@end
 
-		@for   error in errors {@
+		@for   error in errors 
 			@= error @
 		@endfor
 
-		@if error!=nil {@
+		@if error!=nil 
 			content
 		@else
 			content2
 		@endif
 	
 	@}
-@}
+@end
 Goodbye!!
 `
 	lex := NewLexer(sample, "TestLexer1")

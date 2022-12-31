@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-var Version = "0.7.4"
+var Version = "0.7.5"
 var Name = "Blip Template Compiler"
 
 type BlipOptions struct {
@@ -207,6 +207,15 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 		fmt.Printf("Error closing: %s : %s", destFName, err)
 		return
 	}
+
+	if parser.hasErrors() {
+		fmt.Printf("\n\n*** Errors found in : %s\n", file.Name())
+		for _, err := range parser.errors {
+			fmt.Printf("Error: %d:%d %s\n", err.lineNum, err.linePos, err.msg)
+		}
+		fmt.Printf("\n\n")
+	}
+
 	fmt.Printf("Wrote to: %s\n", destFName)
 
 }

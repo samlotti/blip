@@ -24,6 +24,7 @@ const (
 	NODE_FOR
 	NODE_ELSE
 	NODE_ENDIF
+	NODE_END
 	NODE_ENDFOR
 )
 
@@ -172,9 +173,13 @@ func (p *Parser) parseNode(node ast, isRoot bool) {
 				p.rootRequiredError(token)
 			}
 		case INCLUDE:
-			node.addChild(newAst(node, NODE_INCLUDE_SIMPLE, token))
+			if p.validateNoNewline(token) {
+				node.addChild(newAst(node, NODE_INCLUDE_SIMPLE, token))
+			}
 		case EXTEND:
-			p.processInclude(node, token)
+			if p.validateNoNewline(token) {
+				p.processInclude(node, token)
+			}
 			// node.addChild(newAst(node, NODE_INCLUDE, p.processInclude(node, token)))
 		case STARTBLOCK:
 			p.processCodeBlock(node, token)
@@ -198,6 +203,8 @@ func (p *Parser) parseNode(node ast, isRoot bool) {
 			node.addChild(newAst(node, NODE_ENDIF, token))
 		case ENDFOR:
 			node.addChild(newAst(node, NODE_ENDIF, token))
+		case END:
+			node.addChild(newAst(node, NODE_END, token))
 
 		default:
 			p.addError(token, fmt.Sprintf("Parser error Unexpected: %s:%s", token.Type, token.Literal))
@@ -286,7 +293,7 @@ func (p *Parser) processInclude(parent ast, token *Token) {
 
 		case CONTENT:
 			p.processContent(child, token)
-		case ENDBLOCK:
+		case END:
 			return
 
 		case EOF:
@@ -360,6 +367,12 @@ func (p *Parser) verifySplit(token *Token, count int) {
 
 // validateNoNewline
 func (p *Parser) validateNoNewline(token *Token) bool {
+
+	if strings.Contains(token.Literal, "@") {
+		p.addError(token, fmt.Sprintf("Invalid character '@' found in %s", token.Literal))
+		return false
+	}
+
 	if strings.Contains(token.Literal, "\n") {
 		p.addError(token, "It looks like this command was not closed properly")
 		return false

@@ -248,6 +248,8 @@ func (r *Render) writeBody(node ast, depth int, o io.Writer) {
 			r.wStr(o, fmt.Sprintf("%s} else {\n", tabs))
 		case NODE_ENDIF:
 			r.wStr(o, fmt.Sprintf("%s}\n", tabs))
+		case NODE_END:
+			r.wStr(o, fmt.Sprintf("%s}\n", tabs))
 		case NODE_ENDFOR:
 			r.wStr(o, fmt.Sprintf("%s}\n", tabs))
 
