@@ -4,9 +4,13 @@
 
 
 @arg name string
-@include template.head "User Page" @
+@include template.head "User Page"
 Hi @= name @
-@extend template.test {@@content body {@The list of all users@}@}
+@extend template.test
+    @content body
+        The list of all users
+    @end
+@end
 The end of the line
 @func
 func toUpper(str string) string {

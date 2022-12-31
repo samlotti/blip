@@ -37,9 +37,8 @@ const (
 	IF              = "@if"      // The if statement convert to if <content> {
 	ELSE            = "@else"    // converts to } else {
 	ENDIF           = "@endif"   // converts to }
-	END             = "@end"     // converts to }
+	END             = "@end"     // converts to } and ends the block (returns from nesting)
 	FOR             = "@for"     // convert for for range loop
-	ENDFOR          = "@endfor"  // converts to }
 
 )
 
@@ -377,9 +376,6 @@ func (l *Lexer) pickCommand() Token {
 		advance = false
 	case "@end":
 		tkn = l.newTokenStr(END, "")
-		advance = false
-	case "@endfor":
-		tkn = l.newTokenStr(ENDFOR, "")
 		advance = false
 	case "@import":
 		tkn = l.newTokenStr(IMPORT, l.readTil(EOL))

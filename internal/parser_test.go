@@ -91,7 +91,7 @@ Hello @= user.Name@!
 
 		@for   error in errors 
 			@= error @
-		@endfor
+		@end
 
 		@if error!=nil 
 			content

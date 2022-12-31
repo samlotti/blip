@@ -27,20 +27,20 @@ func TestProcess( c context.Context, w io.Writer ) (terror error) {
 	si.WriteStrSafe(w, title)
 	// Line: 10
 	si.Write(w, []byte("</title>\n\n</head>\n\n\n\n<body>\n    "))
-	// Line: 10
+	// Line: 11
 	terror = si.CallCtxFunc(c, "styles")
 	if terror != nil { return }
 	// Line: 12
-	si.Write(w, []byte("\n\n    "))
-	// Line: 12
+	si.Write(w, []byte("\n    "))
+	// Line: 13
 	terror = si.CallCtxFunc(c, "body")
 	if terror != nil { return }
 	// Line: 14
-	si.Write(w, []byte("\n\n    "))
-	// Line: 14
+	si.Write(w, []byte("\n    "))
+	// Line: 15
 	terror = si.CallCtxFunc(c, "javascript")
 	if terror != nil { return }
 	// Line: 19
-	si.Write(w, []byte("\n\n    (c)Copyright 2022\n</body>\n\n"))
+	si.Write(w, []byte("\n    (c)Copyright 2022\n</body>\n\n"))
 	return
 }

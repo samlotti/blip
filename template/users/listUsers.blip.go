@@ -11,7 +11,8 @@ import (
 	"strings"
 )
 
-// Function block from line: 15
+// Function block from line: 19
+
 func toUpper(str string) string {
     return strings.ToUpper(str)
 }
@@ -30,28 +31,30 @@ func ListUsersProcess( name string, c context.Context, w io.Writer ) (terror err
 	si.Write(w, []byte("\n"))
 	// Line: 6
 	si.Write(w, []byte("\n\n"))
-	// Line: 7
+	// Line: 8
 
 	terror = template.HeadProcess("User Page", c, w)
 	if terror != nil { return }
 	// Line: 8
-	si.Write(w, []byte("\nHi "))
+	si.Write(w, []byte("Hi "))
 	// Line: 8
 	si.WriteStrSafe(w, name )
 	// Line: 9
 	si.Write(w, []byte("\n"))
-	// Line: 9
+	// Line: 10
 	var ctxL1 = context.WithValue(c, "__Blip__", 1)
-		// Line: 9
+		// Line: 11
 		var contentF1S1 = func() (terror error) {
-			// Line: 9
-			si.Write(w, []byte("The list of all users"))
+			// Line: 12
+			si.Write(w, []byte("        The list of all users\n    "))
+			// Line: 13
+			// End of content block
 			return
 		}
 		ctxL1 = context.WithValue(ctxL1, "body", contentF1S1)
 	terror = template.TestProcess(ctxL1, w)
 	if terror != nil { return }
-	// Line: 11
+	// Line: 15
 	si.Write(w, []byte("\nThe end of the line\n"))
 	return
 }

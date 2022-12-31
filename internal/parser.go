@@ -25,7 +25,6 @@ const (
 	NODE_ELSE
 	NODE_ENDIF
 	NODE_END
-	NODE_ENDFOR
 )
 
 type ast interface {
@@ -198,12 +197,6 @@ func (p *Parser) parseNode(node ast, isRoot bool) *Token {
 					// node.addChild(newAst(node, NODE_FOR, token))
 				}
 			}
-		case ENDFOR:
-			node.addChild(newAst(node, NODE_ENDFOR, token))
-			if isRoot {
-				p.addError(token, fmt.Sprintf("Unexpected %s found", token.Type))
-			}
-			return token
 		case ELSE:
 			node.addChild(newAst(node, NODE_ELSE, token))
 		case ENDIF:
@@ -228,8 +221,8 @@ func (p *Parser) processForBlock(parent ast, token *Token) {
 	child := newAst(parent, NODE_FOR, token)
 	parent.addChild(child)
 	endToken := p.parseNode(child, false)
-	if endToken.Type != ENDFOR {
-		p.addError(token, fmt.Sprintf("Expected %s found %s at line %d, unterminated @for block ", ENDFOR, endToken.Type, endToken.Line))
+	if endToken.Type != END {
+		p.addError(token, fmt.Sprintf("Expected %s found %s at line %d, unterminated @for block ", END, endToken.Type, endToken.Line))
 	}
 }
 

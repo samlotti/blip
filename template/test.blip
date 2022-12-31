@@ -7,11 +7,11 @@
 
 
 <body>
-    @yield styles@
+    @yield styles
 
-    @yield body@
+    @yield body
 
-    @yield javascript@
+    @yield javascript
 
     (c)Copyright 2022
 </body>

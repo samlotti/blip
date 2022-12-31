@@ -193,7 +193,10 @@ func (r *Render) getTabsDepth(depth int) string {
 }
 
 func (r *Render) writeBody(node ast, depth int, o io.Writer) {
-
+	parentbase, ok := node.(*astBase)
+	if !ok {
+		parentbase = nil
+	}
 	var cnum = 0
 	for _, ast := range node.GetChildren() {
 
@@ -249,15 +252,12 @@ func (r *Render) writeBody(node ast, depth int, o io.Writer) {
 		case NODE_ENDIF:
 			r.wStr(o, fmt.Sprintf("%s}\n", tabs))
 		case NODE_END:
-			if node.(*astBase).nodeType == NODE_CONTENT {
+			if parentbase.nodeType == NODE_CONTENT {
 				// We don't actually write the end block when on a content block.
 				// due to the way contents are done as lambda functions
 			} else {
-				r.wStr(o, fmt.Sprintf("%s}\n", tabs))
+				r.wStr(o, fmt.Sprintf("%s} // end of %s@%d\n", r.getTabsDepth(depth-1), parentbase.token.Type, parentbase.token.Line))
 			}
-
-		case NODE_ENDFOR:
-			r.wStr(o, fmt.Sprintf("%s}\n", tabs))
 
 		default:
 			// Force compiler error.. should never happen unless I add new nodes and forget to implement

@@ -63,19 +63,19 @@ Call into another template and pass contents.
   -- Note after template name the args are embedded as is
 
 
-@extend templateName arg1, arg2 {@
+@extend templateName arg1, arg2
     -- Note after template name the args are embedded as is
-    @content positionName {@
+    @content positionName
         Some content to include
 
-        @include templateName {@
+        @include templateName
             Nested capabilities
             Some content to include
-        @}
+        @end
 
-    @}
+    @end
 
-@}
+@end
 
 Embeddable template
 @yield positionName @
@@ -109,7 +109,7 @@ func toUpper(str string) string {
 ======= Additional features =======
 Note:  Most commands are expected to end on the same line and will return errors if not.
 Ex:
-@extend name args {@
+@extend name args
 ...
 
 
@@ -124,7 +124,7 @@ template content
 === Looping construct ===
 @for error in errors {@
     // for idx, error := range errors {
-@endfor
+@end
     // }
 
 ====

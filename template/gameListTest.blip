@@ -1,7 +1,7 @@
-@extend test {@
+@extend test
 
 
-@content styles {@
+@content styles
 <style>
 
     .scroller {
@@ -17,10 +17,10 @@
 
 </style>
 
-@}
+@end
 
 
-@content content {@
+@content content
 
 
 <div class="scroller">
@@ -52,8 +52,8 @@
 
 </div>
 
-@}
-@}
+@end
+@end
 
 
 
