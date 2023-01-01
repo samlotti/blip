@@ -31,14 +31,14 @@ const (
 	EXTEND          = "@extend"  // includes another template
 	CONTENT         = "@content" // The content to embed
 	YIELD           = "@yield"   // provide content to the included template
-	ENDBLOCK        = "@}"       // The end of block style commands
-	STARTBLOCK      = "@{"       // Start of a code block
-	FUNCTS          = "@func"    // functions
-	IF              = "@if"      // The if statement convert to if <content> {
-	ELSE            = "@else"    // converts to } else {
-	ENDIF           = "@endif"   // converts to }
-	END             = "@end"     // converts to } and ends the block (returns from nesting)
-	FOR             = "@for"     // convert for for range loop
+	// ENDBLOCK        = "@}"       // The end of block style commands
+	STARTBLOCK = "@code" // Start of a code block
+	FUNCTS     = "@func" // functions
+	IF         = "@if"   // The if statement convert to if <content> {
+	ELSE       = "@else" // converts to } else {
+	// ENDIF           = "@endif"   // converts to }
+	END = "@end" // converts to } and ends the block (returns from nesting)
+	FOR = "@for" // convert for for range loop
 
 )
 
@@ -294,7 +294,8 @@ func (l *Lexer) readTils(chars []rune) string {
 	}
 
 	if l.isEOF() {
-		panic(fmt.Sprintf("Expected any of '%s' not found.", string(chars)))
+		// panic(fmt.Sprintf("Expected any of '%s' not found.", string(chars)))
+		return string(l.runes[pos:l.position])
 	}
 
 	l.readChar()
@@ -306,7 +307,7 @@ func (l *Lexer) pickCommand() Token {
 
 	if l.peekChar() == '}' {
 		// This is an end block ... not really a command! and doesn't need a space
-		tk := l.newTokenStr(ENDBLOCK, "@}")
+		tk := l.newTokenStr(END, "@}")
 		l.readChar()
 		l.readChar()
 		return tk
@@ -371,11 +372,8 @@ func (l *Lexer) pickCommand() Token {
 	case "@else":
 		tkn = l.newTokenStr(ELSE, "")
 		advance = false
-	case "@endif":
-		tkn = l.newTokenStr(ENDIF, "")
-		advance = false
 	case "@end":
-		tkn = l.newTokenStr(END, "")
+		tkn = l.newTokenStr(END, "@end")
 		advance = false
 	case "@import":
 		tkn = l.newTokenStr(IMPORT, l.readTil(EOL))
@@ -384,12 +382,12 @@ func (l *Lexer) pickCommand() Token {
 	case "@func":
 		tkn = l.newTokenStr(FUNCTS, cmd)
 		advance = false
-	case "@{":
+	case "@code":
 		tkn = l.newTokenStr(STARTBLOCK, cmd)
 		advance = false
-	case "@}":
-		tkn = l.newTokenStr(ENDBLOCK, cmd)
-		advance = false
+	//case "@":
+	//	tkn = l.newTokenStr(ENDBLOCK, cmd)
+	//	advance = false
 	default:
 		tkn = l.newTokenStr(ILLEGAL, fmt.Sprintf("Invalid command found: %s", cmd))
 		advance = false

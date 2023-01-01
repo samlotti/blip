@@ -54,7 +54,7 @@ func doIt() {
 	fmt.Println("A test line!")
 	fmt.Println("A test line!2")
 }
-@}
+@end
 
 @func
 // More embedded functions and var
@@ -69,19 +69,19 @@ func doIt3() {
 	fmt.Println("A test line!2")
 }
 
-@}
+@end
 Hello @= user.Name@!
 @include simple user.Name, game.P1, game.P2 
 @yield cheese 
 @extend table user.Name 
 	@content game 
 		This is a game against @= game.P1 @ and @= game.P2 @
-		@{
+		@code
 			// Start block
 			//Some code goes in here
 			si.WriteStr(w, "dd")
 			// End Block
-		@}
+		@end
 
 		@extend inner 
 			@content title 
@@ -97,7 +97,7 @@ Hello @= user.Name@!
 			content
 		@else
 			content2
-		@endif
+		@end
 	
 	@end
 @end
@@ -107,7 +107,7 @@ Goodbye!!
 	parser := New(lex)
 	parser.Parse()
 
-	parser.Dump()
+	// parser.Dump()
 
 	assert.Equal(t, 2, len(parser.imports))
 	assert.Equal(t, 2, len(parser.args))

@@ -116,21 +116,40 @@ func New(lex *Lexer) *Parser {
 // Parse
 // At a top level node
 func (p *Parser) Parse() {
-	p.parseNode(p.root, true)
+	p.parseNode(p.root, true, []TokenType{EOF})
 }
 
-func (p *Parser) parseNode(node ast, isRoot bool) *Token {
+func (p *Parser) contains(s []TokenType, str TokenType) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
+
+// parseNode --
+// Parse the content and returns when specif tokens are found.
+// The main loop will continue until EOF
+// A for loop will continue until EOF or END node found
+func (p *Parser) parseNode(node ast, isRoot bool, terminators []TokenType) *Token {
 
 	// On input is the next token
 
 	for {
 		token := p.lex.NextToken()
-		switch token.Type {
-		case ENDBLOCK:
-			if isRoot {
-				p.addError(token, fmt.Sprintf("Unexpected %s found", token.Type))
-			}
+
+		if p.contains(terminators, token.Type) {
 			return token
+		}
+
+		switch token.Type {
+		//case ENDBLOCK:
+		//	if isRoot {
+		//		p.addError(token, fmt.Sprintf("Unexpected %s found", token.Type))
+		//	}
+		//	p.addError(token, fmt.Sprintf("Unexpected %s found", token.Type))
+		//	return token
 		case FUNCTS:
 			if !isRoot {
 				p.addError(token, "functions are only allowed at root")
@@ -143,6 +162,7 @@ func (p *Parser) parseNode(node ast, isRoot bool) *Token {
 			return token
 		case LITERAL:
 			node.addChild(newAst(node, NODE_TOKEN, token))
+
 		case ARG:
 			if isRoot {
 				p.args = append(p.args, token)
@@ -187,26 +207,20 @@ func (p *Parser) parseNode(node ast, isRoot bool) *Token {
 				node.addChild(newAst(node, NODE_YIELD, token))
 			}
 		case IF:
-			if p.validateNoNewline(token) {
-				node.addChild(newAst(node, NODE_IF, token))
-			}
+			p.processIfStatement(node, token)
+
 		case FOR:
-			if p.validateNoNewline(token) {
-				if p.validateForStatementCommand(token) {
-					p.processForBlock(node, token)
-					// node.addChild(newAst(node, NODE_FOR, token))
-				}
-			}
-		case ELSE:
-			node.addChild(newAst(node, NODE_ELSE, token))
-		case ENDIF:
-			node.addChild(newAst(node, NODE_ENDIF, token))
-		case END:
-			node.addChild(newAst(node, NODE_END, token))
-			if isRoot {
-				p.addError(token, fmt.Sprintf("Unexpected %s found", token.Type))
-			}
-			return token
+			p.processForBlock(node, token)
+		//case ELSE:
+		//	node.addChild(newAst(node, NODE_ELSE, token))
+		//case ENDIF:
+		//	node.addChild(newAst(node, NODE_ENDIF, token))
+		//case END:
+		//	//node.addChild(newAst(node, NODE_END, token))
+		//	//if isRoot {
+		//	p.addError(token, fmt.Sprintf("Unexpected %s found", token.Type))
+		//	//}
+		//	return token
 
 		default:
 			p.addError(token, fmt.Sprintf("Parser error Unexpected: %s:%s", token.Type, token.Literal))
@@ -215,23 +229,54 @@ func (p *Parser) parseNode(node ast, isRoot bool) *Token {
 
 }
 
+// processIfStatement
+// If Else End
+func (p *Parser) processIfStatement(parent ast, token *Token) {
+	if !p.validateNoNewline(token) {
+		return
+	}
+
+	child := newAst(parent, NODE_IF, token)
+	parent.addChild(child)
+
+	endToken := p.parseNode(child, false, []TokenType{END, ELSE})
+	if endToken.Type == ELSE {
+		child.addChild(newAst(child, NODE_ELSE, endToken))
+		endToken = p.parseNode(child, false, []TokenType{END})
+	}
+	if endToken.Type == END {
+		child.addChild(newAst(child, NODE_ENDIF, endToken))
+	} else {
+		p.addError(token, fmt.Sprintf("Expected %s found %s at line %d, unterminated @for block ", END, endToken.Type, endToken.Line))
+	}
+}
+
 // processForBlock
-// Code blocks are placed inline with literal output
+// @for x in list ...
+// @end
 func (p *Parser) processForBlock(parent ast, token *Token) {
+	if !p.validateNoNewline(token) || !p.validateForStatementCommand(token) {
+		return
+	}
 	child := newAst(parent, NODE_FOR, token)
 	parent.addChild(child)
-	endToken := p.parseNode(child, false)
+	endToken := p.parseNode(child, false, []TokenType{END})
 	if endToken.Type != END {
 		p.addError(token, fmt.Sprintf("Expected %s found %s at line %d, unterminated @for block ", END, endToken.Type, endToken.Line))
+	} else {
+		child.addChild(newAst(child, NODE_END, token))
 	}
 }
 
 // processCodeBlock
 // Code blocks are placed inline with literal output
-func (p *Parser) processCodeBlock(parent ast, token *Token) {
-	child := newAst(parent, NODE_CODEBLOCK, token)
+func (p *Parser) processCodeBlock(parent ast, cbtoken *Token) {
+	child := newAst(parent, NODE_CODEBLOCK, cbtoken)
 	parent.addChild(child)
-
+	//endToken := p.parseNode(child, false, []TokenType{ENDBLOCK}, true)
+	//if endToken.Type != ENDBLOCK {
+	//	p.addError(token, fmt.Sprintf("Expected %s found %s at line %d, unterminated @{ block ", ENDBLOCK, endToken.Type, endToken.Line))
+	//}
 	for {
 		token := p.lex.NextToken()
 		switch token.Type {
@@ -239,11 +284,22 @@ func (p *Parser) processCodeBlock(parent ast, token *Token) {
 		case LITERAL:
 			child.addChild(newAst(child, NODE_TOKEN_RAW, token))
 
-		case ENDBLOCK:
+			// These next few are not needed as code can be written directly
+		//case ATDisplay:
+		//	child.addChild(newAst(child, NODE_TOKEN_RAW, token))
+		//case ATDisplayInt:
+		//	child.addChild(newAst(child, NODE_TOKEN_RAW, token))
+		//case ATDisplayUnsafe:
+		//	child.addChild(newAst(child, NODE_TOKEN_RAW, token))
+		//case ATDisplayInt64:
+		//	child.addChild(newAst(child, NODE_TOKEN_RAW, token))
+
+		case END:
 			return
 
 		case EOF:
-			p.addError(token, "missing end of code block, unexpected EOF")
+			// cbtoken to show line of statr code block
+			p.addError(cbtoken, "missing end of code block, unexpected EOF")
 			return
 
 		default:
@@ -269,7 +325,7 @@ func (p *Parser) processFunction(parent ast, token *Token) {
 		case LITERAL:
 			child.addChild(newAst(child, NODE_TOKEN, token))
 
-		case ENDBLOCK:
+		case END:
 			return
 
 		case EOF:
@@ -336,7 +392,7 @@ func (p *Parser) processContent(parent ast, token *Token) {
 		p.addError(token, fmt.Sprintf("@content has invalid characters, @ not expected"))
 	}
 
-	endNode := p.parseNode(child, false)
+	endNode := p.parseNode(child, false, []TokenType{END})
 	if endNode.Type != END {
 		p.addError(token, "Content not terminated, expected @end")
 	}
@@ -421,7 +477,6 @@ func (p *Parser) validateForStatementCommand(token *Token) bool {
 		return false
 	}
 	return true
-
 }
 
 func (p *Parser) splitFor(token *Token) []string {
