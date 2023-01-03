@@ -134,7 +134,11 @@ template content
 
 ====
 
+@text
+    anything you want output without parsing.
+    auto ends when @end is found
 
+@end
 
 
 

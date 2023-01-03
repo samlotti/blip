@@ -1,9 +1,11 @@
 package internal
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -120,9 +122,79 @@ Goodbye!!
 
 	// assert.Equal(t, "t", tkn.Literal)
 	fmt.Print("\n\n========================================\n")
-	NewRender(parser).RenderOutput(os.Stdout, "template", "index", &BlipOptions{
+	NewRender(parser).RenderOutput(os.Stdout, "template", "index", "html", &BlipOptions{
 		SupportBranch: "",
 	})
 	fmt.Print("\n========================================\n\n")
+
+}
+
+func TestParserCode(t *testing.T) {
+	sample := `@code
+    // Sample code. Note the @ is not adjusted
+	fmt.printf("This is a @code: %s", test)
+@end
+@arg test string
+`
+	lex := NewLexer(sample, "TestLexer1")
+	parser := New(lex)
+	parser.Parse()
+
+	assert.Equal(t, 0, len(parser.imports))
+	assert.Equal(t, 1, len(parser.args))
+
+	for idx, err := range parser.errors {
+		fmt.Printf("Err:%d   %v\n", idx, err)
+	}
+	assert.Equal(t, 0, len(parser.errors))
+
+	// assert.Equal(t, "t", tkn.Literal)
+	fmt.Print("\n\n========================================\n")
+
+	fmt.Print("\n\n========================================\n")
+
+	var bresult bytes.Buffer
+	NewRender(parser).RenderOutput(&bresult, "template", "index", "html", &BlipOptions{
+		SupportBranch: "",
+	})
+	result := bresult.String()
+	fmt.Print(result)
+	fmt.Print("\n========================================\n\n")
+	assert.True(t, strings.Contains(result, "fmt.printf(\"This is a @code: %s\", test)"))
+}
+
+func TestParserText(t *testing.T) {
+	sample := `@text
+<tr><td>@code</td></tr>
+<tr><td>"abc"</td></tr>
+@end
+@arg test string
+`
+	lex := NewLexer(sample, "TestLexer1")
+	parser := New(lex)
+	parser.Parse()
+
+	assert.Equal(t, 0, len(parser.imports))
+	assert.Equal(t, 1, len(parser.args))
+
+	for idx, err := range parser.errors {
+		fmt.Printf("Err:%d   %v\n", idx, err)
+	}
+	assert.Equal(t, 0, len(parser.errors))
+
+	// assert.Equal(t, "t", tkn.Literal)
+	fmt.Print("\n\n========================================\n")
+
+	var bresult bytes.Buffer
+	NewRender(parser).RenderOutput(&bresult, "template", "index", "html", &BlipOptions{
+		SupportBranch: "",
+	})
+	result := bresult.String()
+	fmt.Print(result)
+	fmt.Print("\n========================================\n\n")
+
+	// @code is not touched
+	assert.True(t, strings.Contains(result, "\\n<tr><td>@code</td></tr>\\n"))
+	assert.True(t, strings.Contains(result, "<tr><td>\\\"abc\\\"</td></tr>\\n"))
 
 }

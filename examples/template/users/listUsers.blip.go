@@ -4,11 +4,12 @@ package users
 
 import (
 	"blip/blipUtil"
-	"blip/template"
+	"blip/examples/template"
 	"context"
 	"fmt"
 	"io"
 	"strings"
+	"time"
 )
 
 // Function block from line: 19
@@ -19,14 +20,17 @@ func toUpper(str string) string {
 
 
 func ListUsersProcess( name string, c context.Context, w io.Writer ) (terror error) {
+    start := time.Now()
+
 	var si = blipUtil.Instance()
+	var escaper = si.GetEscaperFor( "html") 
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Printf("Catch panic %s: %s\n", "ListUsersProcess", err)
 			terror = fmt.Errorf("%v", err)
 		}
+	    si.RenderComplete(escaper, "listUsers", "html", time.Since(start), terror)
 	}()
-	si.IncProcess()
 	// Line: 3
 	si.Write(w, []byte("\n"))
 	// Line: 6
@@ -38,7 +42,7 @@ func ListUsersProcess( name string, c context.Context, w io.Writer ) (terror err
 	// Line: 8
 	si.Write(w, []byte("Hi "))
 	// Line: 8
-	si.WriteStrSafe(w, name )
+	si.WriteStrSafe(w, name , escaper)
 	// Line: 9
 	si.Write(w, []byte("\n"))
 	// Line: 10
@@ -47,7 +51,6 @@ func ListUsersProcess( name string, c context.Context, w io.Writer ) (terror err
 		var contentF1S1 = func() (terror error) {
 			// Line: 12
 			si.Write(w, []byte("        The list of all users\n    "))
-			// Line: 13
 			// End of content block
 			return
 		}
@@ -56,5 +59,7 @@ func ListUsersProcess( name string, c context.Context, w io.Writer ) (terror err
 	if terror != nil { return }
 	// Line: 15
 	si.Write(w, []byte("\nThe end of the line\n"))
+	// Line: 20
+	si.Write(w, []byte("\n"))
 	return
 }

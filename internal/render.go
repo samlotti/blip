@@ -22,7 +22,7 @@ func NewRender(p *Parser) *Render {
 
 // RenderOutput --
 // Writes the parse treee out as a golang file
-func (r *Render) RenderOutput(o io.Writer, packageName string, templateName string, opt *BlipOptions) {
+func (r *Render) RenderOutput(o io.Writer, packageName string, templateName string, langType string, opt *BlipOptions) {
 	r.wStr(o, "package ").wStr(o, packageName).wNL(o)
 
 	r.wStr(o, "// Do Not Edit\n")
@@ -31,10 +31,10 @@ func (r *Render) RenderOutput(o io.Writer, packageName string, templateName stri
 	r.outputImports(o, opt)
 	r.writeFuncts(o)
 
-	r.writeMainFunction(o, templateName)
+	r.writeMainFunction(o, templateName, langType)
 }
 
-func (r *Render) writeMainFunction(o io.Writer, templateName string) {
+func (r *Render) writeMainFunction(o io.Writer, templateName string, langType string) {
 	r.wStr(o, "\n\n").
 		wStr(o, "func ").
 		wStr(o, r.convertTemplateNameToFunctionName(templateName)).
@@ -45,17 +45,25 @@ func (r *Render) writeMainFunction(o io.Writer, templateName string) {
 	}
 
 	r.wStr(o, "c context.Context, w io.Writer ) ")
-	r.wStr(o, `(terror error) {
+	r.wStr(o, `(terror error) {`)
+	r.wStr(o, "\n    start := time.Now()\n")
+	r.wStr(o, `
 	var si = blipUtil.Instance()
+	var escaper = si.GetEscaperFor( "`)
+	r.wStr(o, langType)
+	r.wStr(o, `") 
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Printf("Catch panic %s: %s\n", "`)
 	r.wStr(o, r.convertTemplateNameToFunctionName(templateName))
 	r.wStr(o, `", err)
 			terror = fmt.Errorf("%v", err)
-		}
+		}`)
+	r.wStr(o, `
+	`)
+	r.wStr(o, fmt.Sprintf("    si.RenderComplete(escaper, \"%s\", \"%s\", time.Since(start), terror)", templateName, langType))
+	r.wStr(o, `
 	}()
-	si.IncProcess()
 `)
 
 	if r.p.hasErrors() {
@@ -85,6 +93,7 @@ func (r *Render) outputImports(o io.Writer, opt *BlipOptions) {
 	imports["\"context\""] = ""
 	imports["\"io\""] = ""
 	imports["\"fmt\""] = ""
+	imports["\"time\""] = ""
 
 	if !r.p.hasErrors() {
 		for _, imp := range r.p.imports {
@@ -218,7 +227,7 @@ func (r *Render) writeBody(node ast, depth int, o io.Writer) {
 			r.wStr(o, fmt.Sprintf("%ssi.Write(w, []byte(\"%s\"))\n", tabs, r.addSlashes(base.token.Literal)))
 		case NODE_DISPLAY:
 			// si.WriteStr(w, game.Opponent)
-			r.wStr(o, fmt.Sprintf("%ssi.WriteStrSafe(w, %s)\n", tabs, r.addSlashes(base.token.Literal)))
+			r.wStr(o, fmt.Sprintf("%ssi.WriteStrSafe(w, %s, escaper)\n", tabs, r.addSlashes(base.token.Literal)))
 		// f.Sp "si.Write(w, indexpage1)")
 		case NODE_DISPLAY_INT:
 			r.wStr(o, fmt.Sprintf("%ssi.WriteInt(w, %s)\n", tabs, r.addSlashes(base.token.Literal)))
@@ -238,12 +247,12 @@ func (r *Render) writeBody(node ast, depth int, o io.Writer) {
 			// Do After
 		case NODE_CODEBLOCK:
 			r.wStr(o, fmt.Sprintf("%s// Code block follows\n", tabs))
-
+		case NODE_TEXT:
+			r.wStr(o, fmt.Sprintf("%s// Text block follows\n", tabs))
 		case NODE_CONTENT:
 			// var f1 = func() {
 			cnum += 1
 			r.wStr(o, fmt.Sprintf("%svar contentF%dS%d = func() (terror error) {\n", tabs, r.includeDepth, cnum))
-
 		case NODE_YIELD:
 			// 	si.CallCtxFunc(c, "myJavascript")
 			r.wStr(o, fmt.Sprintf("%sterror = si.CallCtxFunc(c, \"%s\")\n", tabs, r.trimAll(base.token.Literal)))

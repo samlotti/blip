@@ -31,14 +31,13 @@ const (
 	EXTEND          = "@extend"  // includes another template
 	CONTENT         = "@content" // The content to embed
 	YIELD           = "@yield"   // provide content to the included template
-	// ENDBLOCK        = "@}"       // The end of block style commands
-	STARTBLOCK = "@code" // Start of a code block
-	FUNCTS     = "@func" // functions
-	IF         = "@if"   // The if statement convert to if <content> {
-	ELSE       = "@else" // converts to } else {
-	// ENDIF           = "@endif"   // converts to }
-	END = "@end" // converts to } and ends the block (returns from nesting)
-	FOR = "@for" // convert for for range loop
+	STARTBLOCK      = "@code"    // Start of a code block. embedded in the code
+	FUNCTS          = "@func"    // functions. embedded in the code
+	TEXT            = "@text"    // text block written to the output stream
+	IF              = "@if"      // The if statement convert to if <content> {
+	ELSE            = "@else"    // converts to } else {
+	END             = "@end"     // converts to } and ends the block (returns from nesting)
+	FOR             = "@for"     // convert for for range loop
 
 )
 
@@ -52,6 +51,7 @@ type Lexer struct {
 	readPosition int  // The next position
 	ch           rune // current character
 	priorToken   Token
+	literalMode  bool // Set to true after @func , @code, @text, reads up to the @end
 }
 
 func NewLexer(input string, fname string) *Lexer {
@@ -105,32 +105,12 @@ func (l *Lexer) peekChar() rune {
 	}
 }
 
-//func (l *Lexer) peekCharNext() rune {
-//	if l.readPosition >= len(l.runes)-1 {
-//		return 0
-//	} else {
-//		return l.runes[l.readPosition+1]
-//	}
-//}
-
-//func (l *Lexer) priorChar() rune {
-//	if l.readPosition < 2 {
-//		return 0
-//	}
-//	return l.runes[l.readPosition-2]
-//}
-
 func (l *Lexer) newToken(tokenType TokenType, ch rune) Token {
 	var r = Token{Type: tokenType, Literal: string(ch), Line: l.lineNum, Pos: l.lPos}
 	l.priorToken = r
 	return r
 }
 
-//func (l *Lexer) newToken2(tokenType TokenType, ch rune, ch2 rune) Token {
-//	var r = Token{Type: tokenType, Literal: string(ch) + string(ch2), Line: l.lineNum, Pos: l.lPos}
-//	l.priorToken = r
-//	return r
-//}
 func (l *Lexer) newTokenStr(tokenType TokenType, ch string) Token {
 	var r = Token{Type: tokenType, Literal: ch, Line: l.lineNum, Pos: l.lPos}
 	l.priorToken = r
@@ -156,13 +136,13 @@ func (l *Lexer) NextToken() (tk *Token) {
 
 	var tok Token
 
-	// if l.skipWhitespace() {
-	//	// Add a semi
-	//	return l.newToken(SEMI, ';')
-	//}
-
 	if l.isEOF() {
 		tok := l.newToken(EOF, '0')
+		return &tok
+	}
+
+	if l.literalMode {
+		tok = l.newTokenStr(LITERAL, l.readLiteralUntilEnd())
 		return &tok
 	}
 
@@ -197,6 +177,29 @@ func (l *Lexer) NextToken() (tk *Token) {
 
 	return &tok
 
+}
+
+// readLiteralUntilEnd
+// Read everything without parsing. Ex: @ will just be @. @commands will be output unchanged.
+// until it sees @end.  Then will return and unset literal mode.
+// Next token after this literal token would be the end token.
+// so for @code, lexer presents 3 tokens,  code, literal and end
+func (l *Lexer) readLiteralUntilEnd() string {
+	pos := l.position
+	for !l.isEOF() {
+		if l.ch == '@' {
+			if l.position+3 < len(l.runes) {
+				if l.runes[l.position+1] == 'e' &&
+					l.runes[l.position+2] == 'n' &&
+					l.runes[l.position+3] == 'd' {
+					l.literalMode = false
+					break
+				}
+			}
+		}
+		l.readChar()
+	}
+	return string(l.runes[pos:l.position])
 }
 
 func (l *Lexer) readLiteral() string {
@@ -379,15 +382,18 @@ func (l *Lexer) pickCommand() Token {
 		tkn = l.newTokenStr(IMPORT, l.readTil(EOL))
 		// consume the eol
 		advance = true
+	case "@text":
+		tkn = l.newTokenStr(TEXT, cmd)
+		l.literalMode = true
+		advance = false
 	case "@func":
 		tkn = l.newTokenStr(FUNCTS, cmd)
+		l.literalMode = true
 		advance = false
 	case "@code":
 		tkn = l.newTokenStr(STARTBLOCK, cmd)
+		l.literalMode = true
 		advance = false
-	//case "@":
-	//	tkn = l.newTokenStr(ENDBLOCK, cmd)
-	//	advance = false
 	default:
 		tkn = l.newTokenStr(ILLEGAL, fmt.Sprintf("Invalid command found: %s", cmd))
 		advance = false

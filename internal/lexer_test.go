@@ -375,8 +375,8 @@ func (l *Lexer) readTils(chars []rune) string {
 	//`, string(tkn.Literal))
 
 	tkn = lex.NextToken()
-	assert.Equal(t, END, string(tkn.Type))
 	assert.Equal(t, "@end", string(tkn.Literal))
+	assert.Equal(t, END, string(tkn.Type))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, EOF, string(tkn.Type))

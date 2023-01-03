@@ -7,26 +7,29 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"time"
 )
 
 
 
 func GameListTestProcess( c context.Context, w io.Writer ) (terror error) {
+    start := time.Now()
+
 	var si = blipUtil.Instance()
+	var escaper = si.GetEscaperFor( "html") 
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Printf("Catch panic %s: %s\n", "GameListTestProcess", err)
 			terror = fmt.Errorf("%v", err)
 		}
+	    si.RenderComplete(escaper, "gameListTest", "html", time.Since(start), terror)
 	}()
-	si.IncProcess()
 	// Line: 2
 	var ctxL1 = context.WithValue(c, "__Blip__", 1)
 		// Line: 5
 		var contentF1S1 = func() (terror error) {
 			// Line: 20
 			si.Write(w, []byte("<style>\n\n    .scroller {\n        height: 300px;\n        xbackground-color: coral;\n        overflow: scroll;\n    }\n\n    .gameEntryPanel {\n        border: 10px solid #0f5132; border-radius: 20px;\n        margin-bottom: 10px;\n    }\n\n</style>\n\n"))
-			// Line: 21
 			// End of content block
 			return
 		}
@@ -34,7 +37,6 @@ func GameListTestProcess( c context.Context, w io.Writer ) (terror error) {
 		var contentF1S2 = func() (terror error) {
 			// Line: 55
 			si.Write(w, []byte("\n\n<div class=\"scroller\">\n\n    <!-- A Game in play -->\n    <div class=\"gameEntryPanel\">\n            <pre >\n            <b>Your Turn</b>\n            <b>Opponent Name</b> <small>(rating)</small>\n            Moves: 45\n            </pre>\n    </div>\n\n    <div class=\"gameEntryPanel\">\n            <pre >\n            <b>Your Turn</b>\n            <b>Opponent Name</b> <small>(rating)</small>\n            Moves: 45\n            </pre>\n    </div>\n\n    <div class=\"gameEntryPanel\">\n            <pre >\n            <b>Your Turn</b>\n            <b>Opponent Name</b> <small>(rating)</small>\n            Moves: 45\n            </pre>\n    </div>\n\n</div>\n\n"))
-			// Line: 56
 			// End of content block
 			return
 		}

@@ -7,23 +7,27 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"time"
 )
 
 
 
 func HeadProcess( title string, c context.Context, w io.Writer ) (terror error) {
+    start := time.Now()
+
 	var si = blipUtil.Instance()
+	var escaper = si.GetEscaperFor( "text") 
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Printf("Catch panic %s: %s\n", "HeadProcess", err)
 			terror = fmt.Errorf("%v", err)
 		}
+	    si.RenderComplete(escaper, "head", "text", time.Since(start), terror)
 	}()
-	si.IncProcess()
 	// Line: 3
 	si.Write(w, []byte("<html>\n    "))
 	// Line: 3
-	si.WriteStrSafe(w, title )
+	si.WriteStrSafe(w, title , escaper)
 	// Line: 4
 	si.Write(w, []byte("\n</html>"))
 	return

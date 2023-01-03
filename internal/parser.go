@@ -14,6 +14,7 @@ const (
 	NODE_CONTENT
 	NODE_FUNC
 	NODE_CODEBLOCK
+	NODE_TEXT
 	NODE_DISPLAY
 	NODE_DISPLAY_RAW
 	NODE_DISPLAY_INT
@@ -200,6 +201,8 @@ func (p *Parser) parseNode(node ast, isRoot bool, terminators []TokenType) *Toke
 				p.processExtend(node, token)
 			}
 			// node.addChild(newAst(node, NODE_INCLUDE, p.processExtend(node, token)))
+		case TEXT:
+			p.processTextBlock(node, token)
 		case STARTBLOCK:
 			p.processCodeBlock(node, token)
 		case YIELD:
@@ -280,30 +283,38 @@ func (p *Parser) processCodeBlock(parent ast, cbtoken *Token) {
 	for {
 		token := p.lex.NextToken()
 		switch token.Type {
-
 		case LITERAL:
 			child.addChild(newAst(child, NODE_TOKEN_RAW, token))
-
-			// These next few are not needed as code can be written directly
-		//case ATDisplay:
-		//	child.addChild(newAst(child, NODE_TOKEN_RAW, token))
-		//case ATDisplayInt:
-		//	child.addChild(newAst(child, NODE_TOKEN_RAW, token))
-		//case ATDisplayUnsafe:
-		//	child.addChild(newAst(child, NODE_TOKEN_RAW, token))
-		//case ATDisplayInt64:
-		//	child.addChild(newAst(child, NODE_TOKEN_RAW, token))
-
 		case END:
 			return
-
 		case EOF:
 			// cbtoken to show line of statr code block
 			p.addError(cbtoken, "missing end of code block, unexpected EOF")
 			return
-
 		default:
-			p.addError(token, "Unexpected inside @{")
+			p.addError(token, "Unexpected inside @code")
+
+		}
+	}
+}
+
+// processTextBlock
+// Text blocks are raw output of the text.
+func (p *Parser) processTextBlock(parent ast, cbtoken *Token) {
+	child := newAst(parent, NODE_TEXT, cbtoken)
+	parent.addChild(child)
+	for {
+		token := p.lex.NextToken()
+		switch token.Type {
+		case LITERAL:
+			child.addChild(newAst(child, NODE_TOKEN, token))
+		case END:
+			return
+		case EOF:
+			p.addError(cbtoken, "missing end of text block, unexpected EOF")
+			return
+		default:
+			p.addError(token, "Unexpected inside @text")
 
 		}
 	}

@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-var Version = "0.8.1"
+var Version = "0.8.6"
 var Name = "Blip Template Compiler"
 
 type BlipOptions struct {
@@ -151,11 +151,24 @@ func processDir(sdir string, opt *BlipOptions) {
 }
 
 func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
-	if !strings.HasSuffix(file.Name(), ".blip") {
+	fileType := "text"
+
+	if strings.HasSuffix(file.Name(), ".go") {
 		return
 	}
 
-	destFName := sdir + "/" + file.Name() + ".go"
+	if !strings.Contains(file.Name(), ".blip") {
+		return
+	}
+
+	trimmedName := file.Name()
+	if !strings.HasSuffix(file.Name(), ".blip") {
+		sections := strings.Split(file.Name(), ".")
+		fileType = sections[len(sections)-1]
+		trimmedName = strings.TrimSuffix(trimmedName, "."+fileType)
+	}
+
+	destFName := sdir + "/" + trimmedName + ".go"
 	sourceFName := sdir + "/" + file.Name()
 
 	fmt.Printf("Process file: %s\n", sourceFName)
@@ -201,7 +214,7 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 		fmt.Printf("Error creating: %s : %s", destFName, err)
 		return
 	}
-	NewRender(parser).RenderOutput(dfile, dirSects[len(dirSects)-1], fileSects[0], opt)
+	NewRender(parser).RenderOutput(dfile, dirSects[len(dirSects)-1], fileSects[0], fileType, opt)
 	err = dfile.Close()
 	if err != nil {
 		fmt.Printf("Error closing: %s : %s", destFName, err)
