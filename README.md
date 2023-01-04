@@ -28,9 +28,12 @@ Cons:
 
 # Installing
 
+**Development version**
+
 go get -u github.com/samlotti/blip
 
-Install the blip command line tool
+**Install the blip command line tool**
+
 go install github.com/samlotti/blip@latest
 
 
