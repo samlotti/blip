@@ -26,6 +26,14 @@ Cons:
 # Examples 
 * See the example blipWebServer: [BlipWebServerExample](/examples/template/blipWebServer) 
 
+# Installing
+
+go get -u github.com/samlotti/blip
+
+Install the blip command line tool
+go install github.com/samlotti/blip@latest
+
+
 # Contributing
 
 All contributions are welcome – if you find a bug please report it.
