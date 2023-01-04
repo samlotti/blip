@@ -34,17 +34,17 @@ func TestProcess( c context.Context, w io.Writer ) (terror error) {
 	// Line: 11
 	terror = si.CallCtxFunc(c, "styles")
 	if terror != nil { return }
+	// Line: 11
+	si.Write(w, []byte("    "))
 	// Line: 12
-	si.Write(w, []byte("\n    "))
-	// Line: 13
 	terror = si.CallCtxFunc(c, "body")
 	if terror != nil { return }
-	// Line: 14
+	// Line: 13
 	si.Write(w, []byte("\n    "))
-	// Line: 15
+	// Line: 14
 	terror = si.CallCtxFunc(c, "javascript")
 	if terror != nil { return }
-	// Line: 19
+	// Line: 18
 	si.Write(w, []byte("\n    (c)Copyright 2022\n</body>\n\n"))
 	return
 }

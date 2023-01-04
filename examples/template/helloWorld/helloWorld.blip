@@ -1,0 +1,17 @@
+
+Hello from Blip Templates.
+
+// Note run buildTemplates to generate whenever the template is changed.
+// This template expects an array of numbers passed as an argument
+// An optional "name" can be added to the context
+
+@if name == ""
+    No name!!!
+@else
+    @for c in numArray
+      @int= c@. Hello @= name@!
+    @end
+@end
+
+@arg numArray []int
+@context name string = "World"

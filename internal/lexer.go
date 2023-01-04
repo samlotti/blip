@@ -55,9 +55,7 @@ type Lexer struct {
 }
 
 func NewLexer(input string, fname string) *Lexer {
-	// input = input + "\n"
 	l := &Lexer{input: input, FName: fname, lineNum: 1, lPos: 0, runes: []rune(input)}
-	// log.Printf("Lexer: %s\n", input)
 	l.readChar() // Prime the first character
 	return l
 }
@@ -419,29 +417,3 @@ func (l *Lexer) bypassMultilineComment() {
 		l.readChar()
 	}
 }
-
-//
-//func (l *Lexer) getExtendToken() Token {
-//	content := l.readTilStr([]rune("{@"))
-//	return l.newTokenStr(EXTEND, content)
-//}
-//
-//func (l *Lexer) getIncludeToken() Token {
-//	content := l.readTils([]rune{'@', '{'})
-//	t := INCLUDE
-//	if l.ch == '{' {
-//		if l.peekChar() != '@' {
-//			return l.newTokenStr(ILLEGAL, "Expected @ after the {")
-//		}
-//		l.readChar()
-//		t = EXTEND
-//	} else {
-//		if l.isEOF() {
-//			return l.newTokenStr(ILLEGAL, "Expected @")
-//		}
-//	}
-//
-//	l.readChar()
-//
-//	return l.newTokenStr(TokenType(t), content)
-//}

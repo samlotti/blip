@@ -1,0 +1,56 @@
+
+@import "blip/examples/template/blipWebServer/model"
+@arg users []*model.User
+
+@func
+// A go function, will be in file but outside the process method
+// Able to do this but may be better in another supporting file.
+// For demo only.
+func activeDesc(active bool) string {
+    if active {
+        return "Active"
+    } else {
+        return "InActive"
+    }
+}
+@end
+
+@extend root "All Users"
+
+@content styles
+<style>
+    .usertable {
+        margin: 16px;
+    }
+</style>
+@end
+
+@content mainContent
+<div class="jumbotron">
+<table class="table usertable">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Title</th>
+        <th>EMail</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+@for user in users
+<tr>
+    <td>@int= idx@</td>
+    <td>@= user.Name@</td>
+    <td>@= user.Title@</td>
+    <td>@= user.EMail@</td>
+    <td>@= activeDesc(user.Active)@</td>
+    <td><a href="/users/view/@int= idx@">View</a></td>
+</tr>
+@end
+    </tbody>
+</table>
+</div>
+@end
+@end

@@ -8,7 +8,6 @@
 
 <body>
     @yield styles
-
     @yield body
 
     @yield javascript

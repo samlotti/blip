@@ -60,7 +60,7 @@ var allUsers = []User{ bob, User2, .. UserN  }
 #### @=     ... @
 This is the basic replacement command.  It will render the content into the output stream.
 <strong>Name: @= bob.Name@</strong>
-Note that the code between @= and @ will be inserted into the output go file.
+Note that the code between @= and @ will be inserted into the output as go code and run during the template execution runtime.
 
 The output will be escaped to make it safe based on the file type. The file type is determined by the file name. 
 Ex: index.blip.html --> html file

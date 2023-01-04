@@ -34,6 +34,7 @@ func GteProcess(opt *BlipOptions) {
 	fmt.Printf("Source folder: %s\n", opt.Sdir)
 
 	processDir(opt.Sdir, opt)
+	fmt.Printf("\n")
 
 	if opt.Watch {
 		watchFiles(opt)
@@ -146,8 +147,10 @@ func processDir(sdir string, opt *BlipOptions) {
 			processDir(sdir+"/"+file.Name(), opt)
 		} else {
 			processFile(sdir, file, opt)
+
 		}
 	}
+
 }
 
 func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
@@ -171,8 +174,7 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 	destFName := sdir + "/" + trimmedName + ".go"
 	sourceFName := sdir + "/" + file.Name()
 
-	fmt.Printf("Process file: %s\n", sourceFName)
-	fmt.Printf("Dest file: %s/%s\n", sdir, destFName)
+	fmt.Printf("\nProcess blip: %s --> %s", sourceFName, destFName)
 
 	inBytes, err := ioutil.ReadFile(sourceFName)
 	if err != nil {
@@ -182,20 +184,14 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 
 	sfi, err := os.Stat(sourceFName)
 	if err != nil {
-		fmt.Printf("Unable to stat: %s : %s", sourceFName, err)
+		fmt.Printf(" -- Unable to stat: %s : %s\n", sourceFName, err)
 		return
 	}
 	dfi, err := os.Stat(destFName)
-	if err != nil {
-		// fmt.Printf("Unable to stat: %s : %s", destFName, err)
-		// return
-	}
-
 	if err == nil {
-		// fmt.Printf("S:%v   D:%v   %v", sfi.ModTime(), dfi.ModTime(), opt.Rebuild)
 		if sfi.ModTime().Before(dfi.ModTime()) {
 			if !opt.Rebuild {
-				fmt.Printf("File %s Not modified since built\n", sourceFName)
+				fmt.Printf("-- Not modified \n")
 				return
 			}
 		}
@@ -211,13 +207,13 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 	// _ = os.Remove(destFName)
 	dfile, err := os.Create(destFName)
 	if err != nil {
-		fmt.Printf("Error creating: %s : %s", destFName, err)
+		fmt.Printf(" -- Error: %s\n", err)
 		return
 	}
 	NewRender(parser).RenderOutput(dfile, dirSects[len(dirSects)-1], fileSects[0], fileType, opt)
 	err = dfile.Close()
 	if err != nil {
-		fmt.Printf("Error closing: %s : %s", destFName, err)
+		fmt.Printf(" -- Error: %s\n", err)
 		return
 	}
 
@@ -228,7 +224,6 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 		}
 		fmt.Printf("\n\n")
 	}
-
-	fmt.Printf("Wrote to: %s\n", destFName)
+	// fmt.Printf("\n")
 
 }
