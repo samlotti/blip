@@ -1,12 +1,12 @@
-@import "blip/examples/template"
+@import "blip/.blip_generated/blip_template"
 
 @import "strings"
 
 
 @arg name string
-@include template.head "User Page"
+@include blip_template.head "User Page"
 Hi @= name @
-@extend template.test
+@extend blip_template.test
     @content body
         The list of all users
     @end

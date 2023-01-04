@@ -1,16 +1,18 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"io/fs"
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"strings"
 )
 
-var Version = "0.8.6"
+var Version = "0.8.7"
 var Name = "Blip Template Compiler"
 
 type BlipOptions struct {
@@ -22,13 +24,8 @@ type BlipOptions struct {
 
 func GteProcess(opt *BlipOptions) {
 
-	fmt.Println(`
-██████╗ ██╗     ██╗██████╗     ████████╗███████╗███╗   ███╗██████╗ ██╗      █████╗ ████████╗███████╗███████╗
-██╔══██╗██║     ██║██╔══██╗    ╚══██╔══╝██╔════╝████╗ ████║██╔══██╗██║     ██╔══██╗╚══██╔══╝██╔════╝██╔════╝
-██████╔╝██║     ██║██████╔╝       ██║   █████╗  ██╔████╔██║██████╔╝██║     ███████║   ██║   █████╗  ███████╗
-██╔══██╗██║     ██║██╔═══╝        ██║   ██╔══╝  ██║╚██╔╝██║██╔═══╝ ██║     ██╔══██║   ██║   ██╔══╝  ╚════██║
-██████╔╝███████╗██║██║            ██║   ███████╗██║ ╚═╝ ██║██║     ███████╗██║  ██║   ██║   ███████╗███████║
-╚═════╝ ╚══════╝╚═╝╚═╝            ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝`)
+	fmt.Printf(" __          __     ___  ___        __            ___  ___  __  \n|__) |    | |__)     |  |__   |\\/| |__) |     /\\   |  |__  /__` \n|__) |___ | |        |  |___  |  | |    |___ /~~\\  |  |___ .__/ \n")
+
 	fmt.Printf("Blip Processing: Version: %s\n", Version)
 	fmt.Printf("Rebuild All: %v\n", opt.Rebuild)
 	fmt.Printf("Source folder: %s\n", opt.Sdir)
@@ -171,10 +168,18 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 		trimmedName = strings.TrimSuffix(trimmedName, "."+fileType)
 	}
 
-	destFName := sdir + "/" + trimmedName + ".go"
+	// destDir
+	destDir := findGoMod() + "/.blip_generated/blip_" + path.Base(sdir)
+	err := os.MkdirAll(destDir, 0755)
+	if err != nil {
+		panic(fmt.Sprintf("Error creating directory: %s: %s", destDir, err))
+		return
+	}
+
+	destFName := destDir + "/" + trimmedName + ".go"
 	sourceFName := sdir + "/" + file.Name()
 
-	fmt.Printf("\nProcess blip: %s --> %s", sourceFName, destFName)
+	fmt.Printf("\nProcess blip: %s --> %s", sourceFName, destDir)
 
 	inBytes, err := ioutil.ReadFile(sourceFName)
 	if err != nil {
@@ -210,7 +215,7 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 		fmt.Printf(" -- Error: %s\n", err)
 		return
 	}
-	NewRender(parser).RenderOutput(dfile, dirSects[len(dirSects)-1], fileSects[0], fileType, opt)
+	NewRender(parser).RenderOutput(dfile, dirSects[len(dirSects)-1], fileSects[0], fileType, sourceFName, opt)
 	err = dfile.Close()
 	if err != nil {
 		fmt.Printf(" -- Error: %s\n", err)
@@ -226,4 +231,26 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 	}
 	// fmt.Printf("\n")
 
+}
+
+// findGoMod --
+// Goes up the directories until it find the go.mod file
+func findGoMod() string {
+	dir, err := os.Getwd()
+	if err != nil {
+		panic(fmt.Sprintf("Cannot get directory: %s", err))
+	}
+	for {
+		_, err := os.Stat(dir + "/go.mod")
+		if err == nil {
+			// This is the bae directory!
+			return dir
+		}
+		if errors.Is(err, os.ErrNotExist) {
+			dir, _ = path.Split(strings.TrimSuffix(dir, "/"))
+			continue
+		} else {
+			panic(fmt.Sprintf("Cannot get base directory, searching for directory with go.mod: %s", err))
+		}
+	}
 }

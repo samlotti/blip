@@ -122,7 +122,7 @@ Goodbye!!
 
 	// assert.Equal(t, "t", tkn.Literal)
 	fmt.Print("\n\n========================================\n")
-	NewRender(parser).RenderOutput(os.Stdout, "template", "index", "html", &BlipOptions{
+	NewRender(parser).RenderOutput(os.Stdout, "template", "index", "html", "test", &BlipOptions{
 		SupportBranch: "",
 	})
 	fmt.Print("\n========================================\n\n")
@@ -154,7 +154,7 @@ func TestParserCode(t *testing.T) {
 	fmt.Print("\n\n========================================\n")
 
 	var bresult bytes.Buffer
-	NewRender(parser).RenderOutput(&bresult, "template", "index", "html", &BlipOptions{
+	NewRender(parser).RenderOutput(&bresult, "template", "index", "html", "test", &BlipOptions{
 		SupportBranch: "",
 	})
 	result := bresult.String()
@@ -186,7 +186,7 @@ func TestParserText(t *testing.T) {
 	fmt.Print("\n\n========================================\n")
 
 	var bresult bytes.Buffer
-	NewRender(parser).RenderOutput(&bresult, "template", "index", "html", &BlipOptions{
+	NewRender(parser).RenderOutput(&bresult, "template", "index", "html", "test", &BlipOptions{
 		SupportBranch: "",
 	})
 	result := bresult.String()
