@@ -1,1 +1,1 @@
-go install blip/blip.go
+go install blip.go

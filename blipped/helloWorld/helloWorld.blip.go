@@ -4,9 +4,9 @@ package helloWorld
 // source blip: examples/template/helloWorld/helloWorld.blip
 
 import (
-	"blip/blipUtil"
 	"context"
 	"fmt"
+	"github.com/samlotti/blip/blipUtil"
 	"io"
 	"time"
 )

@@ -1,12 +1,12 @@
 package main
 
 import (
-	"blip/blipUtil"
-	"blip/blipped/component"
-	"blip/blipped/html"
-	"blip/examples/template/blipWebServer/model"
 	"context"
 	"fmt"
+	"github.com/samlotti/blip/blipUtil"
+	"github.com/samlotti/blip/blipped/component"
+	"github.com/samlotti/blip/blipped/html"
+	"github.com/samlotti/blip/examples/template/blipWebServer/model"
 	"log"
 	"net/http"
 	"strconv"

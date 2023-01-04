@@ -4,10 +4,10 @@ package users
 // source blip: examples/template/users/listUsers.blip.html
 
 import (
-	"blip/blipUtil"
 	"blip/blipped/template"
 	"context"
 	"fmt"
+	"github.com/samlotti/blip/blipUtil"
 	"io"
 	"strings"
 	"time"

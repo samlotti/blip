@@ -1,4 +1,4 @@
-module blip
+module github.com/samlotti/blip
 
 go 1.17
 

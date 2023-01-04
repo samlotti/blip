@@ -1,9 +1,9 @@
 package main
 
 import (
-	"blip/internal"
 	"flag"
 	"fmt"
+	"github.com/samlotti/blip/internal"
 )
 
 // main

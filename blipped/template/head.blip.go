@@ -4,9 +4,9 @@ package template
 // source blip: examples/template/head.blip
 
 import (
-	"blip/blipUtil"
 	"context"
 	"fmt"
+	"github.com/samlotti/blip/blipUtil"
 	"io"
 	"time"
 )
