@@ -169,7 +169,7 @@ func processFile(sdir string, file fs.FileInfo, opt *BlipOptions) {
 	}
 
 	// destDir
-	destDir := findGoMod() + "/.blip_generated/blip_" + path.Base(sdir)
+	destDir := findGoMod() + "/blipped/" + path.Base(sdir)
 	err := os.MkdirAll(destDir, 0755)
 	if err != nil {
 		panic(fmt.Sprintf("Error creating directory: %s: %s", destDir, err))

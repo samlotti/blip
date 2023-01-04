@@ -8,7 +8,7 @@ The blip template translator converts x.blip files to x.blip.go files.  This com
 ```
 blip --help
 Blip Template Compiler
-Blip Processing: Version: 0.8.1
+Blip Processing: Version: x.x.x
   -dir string
     	The source directory containing templates (default "./template")
   -help
@@ -87,13 +87,12 @@ In our example we can pass a user as follows:
 @arg user *User
 @arg allUsers []*User
 
-The result of this will be the Process function requiring these parameters in the call.
+The result of this will be the Render function requiring these parameters in the call.
 ```go
-func UserListEntryProcess( user *User, allUsers []*User, c context.Context, w io.Writer ) (terror error) {
+func UserListEntryRender( user *User, allUsers []*User, c context.Context, w io.Writer ) (terror error) {
 	// ..
 }
 ```
-
 
 #### @context name type
 These are variables that are passed via the context.  Within the template they are accessed directly as they get resolved at the start of the process.
@@ -117,7 +116,8 @@ Can be used to comment out some template code.
 *@
 
 #### @include templateName arg1, arg2
-Calls the templateName process (generated) function passing in the arguments if any.
+#### @include package.templateName arg1, arg2   <-- If not in the same package as calling template
+Calls the templateName render (generated) function passing in the arguments if any.
 
 Example:
 ```
@@ -130,6 +130,7 @@ Example:
 ``` 
 
 #### @extend templateName arg1, arg2   ... @end
+#### @extend package.templateName arg1, arg2   ... @end    <-- If not in the same package as calling template
 Calls the render of the template. This is block command that can contain @content sections, the sections are rendered in the extended template.
 
 The template being expected would have @yield commands that will output content from the content sections.
@@ -221,6 +222,28 @@ BlipUtil.Instance().SetMonitor( IBlipMonitor ) can be registered to have callbac
 The default is no monitoring.  You can always monitor the call to the template render yourself.
 
 IBlipMonitor will receive a call from each render including all include / extend calls.
+
+# Generated files.
+
+All generated go files will be in a subdirectory off the root subdirectory of the project.  The directory is called 'blipped'.
+The templates are within the package name based on the source template package name.  Note that this will be flattened to one level.
+
+Ex:
+
+    web/template/components
+    web/template/layout
+    web/template/pages
+
+
+Will generate go files in:
+
+
+    blipped/components
+    blipped/layout
+    blipped/pages
+
+
+
 
 
 

@@ -2,7 +2,7 @@ package main
 
 import (
 	"blip/blipUtil"
-	"blip/examples/template/helloWorld"
+	"blip/blipped/helloWorld"
 	"context"
 	"os"
 )
@@ -19,21 +19,21 @@ func main() {
 
 	var ctx = context.Background()
 
-	err := helloWorld.HelloWorldProcess([]int{1, 2, 3, 4, 5}, ctx, os.Stdout)
+	err := helloWorld.HelloWorldRender([]int{1, 2, 3, 4, 5}, ctx, os.Stdout)
 	if err != nil {
 		panic(err)
 	}
 
 	ctx = context.WithValue(ctx, "name", "Blip Programmer")
 
-	err = helloWorld.HelloWorldProcess([]int{1, 2, 3, 4, 5}, ctx, os.Stdout)
+	err = helloWorld.HelloWorldRender([]int{1, 2, 3, 4, 5}, ctx, os.Stdout)
 	if err != nil {
 		panic(err)
 	}
 
 	ctx = context.WithValue(ctx, "name", "")
 
-	err = helloWorld.HelloWorldProcess([]int{1, 2, 3, 4, 5}, ctx, os.Stdout)
+	err = helloWorld.HelloWorldRender([]int{1, 2, 3, 4, 5}, ctx, os.Stdout)
 	if err != nil {
 		panic(err)
 	}

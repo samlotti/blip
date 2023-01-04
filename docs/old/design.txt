@@ -1,6 +1,9 @@
 
 Blip - Go Templates
 
+--- Internal notes ---
+
+
 The intent is to create template html files with go code included.
 A conversion step with convert these to go file with the name of the template
 and a process() function.

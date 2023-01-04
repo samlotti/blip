@@ -1,9 +1,9 @@
 package main
 
 import (
-	"blip/.blip_generated/blip_component"
-	"blip/.blip_generated/blip_html"
 	"blip/blipUtil"
+	"blip/blipped/component"
+	"blip/blipped/html"
 	"blip/examples/template/blipWebServer/model"
 	"context"
 	"fmt"
@@ -40,24 +40,24 @@ func BaseCtx() context.Context {
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	ctx := BaseCtx()
-	blip_html.IndexProcess(ctx, w)
+	html.IndexRender(ctx, w)
 }
 
 func UListAll(w http.ResponseWriter, r *http.Request) {
 	ctx := BaseCtx()
 	users := model.GetUsers()
-	blip_html.ListUsersProcess(users, ctx, w)
+	html.ListUsersRender(users, ctx, w)
 }
 
 func UListActive(w http.ResponseWriter, r *http.Request) {
 	ctx := BaseCtx()
 	users := model.GetUsers()
-	blip_html.ListActiveUsersProcess(users, ctx, w)
+	html.ListActiveUsersRender(users, ctx, w)
 }
 
 func UView(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/users/view/"))
 	ctx := BaseCtx()
 	user := model.GetUser(id)
-	blip_component.UserDetailProcess(user, ctx, w)
+	component.UserDetailRender(user, ctx, w)
 }
