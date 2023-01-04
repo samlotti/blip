@@ -59,7 +59,8 @@ template commands.
 
 Call into another template and pass contents.
 !! What about arguments !!
-@include templateName arg1, arg2 @ <-- .. no content added .. simple include
+@include templateName arg1, arg2
+  <-- .. no content added .. simple include
   -- Note after template name the args are embedded as is
 
 
@@ -78,33 +79,37 @@ Call into another template and pass contents.
 @end
 
 Embeddable template
-@yield positionName @
+@yield positionName
 Translates to a function call
 
 if position name is not presented by the caller it will not produce anything.
 
 
 
-
-
 Note the expression must convert to a string
 @import  go import to be injected
 
-@{
+@code
     full code block ... will be embedded in the result
     use w for writing to actually produce some output.
     The si variable can be used to call helper functions
-@}
+    Code blocks expect to output the text directly to the go source code, so this must be valid
+    go source.
+    .. to do .. lexer should go into block mode and capture
+    everything as raw up to the "@end" string
+@end
 
 @func
 define a full function in here. It will be embedded as is at the end of the file.
-@}
+.. to do .. lexer should go into block mode and capture
+    everything as raw up to the "@end" string
+@end
 ex:
 @func
 func toUpper(str string) string {
     return strings.ToUpper(str)
 }
-@}
+@end
 
 ======= Additional features =======
 Note:  Most commands are expected to end on the same line and will return errors if not.
@@ -119,17 +124,21 @@ Ex:
 template content
 @else
 template content
-@endif
+@end
 
 === Looping construct ===
-@for error in errors {@
+@for error in errors
     // for idx, error := range errors {
 @end
     // }
 
 ====
 
+@text
+    anything you want output without parsing.
+    auto ends when @end is found
 
+@end
 
 
 

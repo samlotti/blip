@@ -226,7 +226,7 @@ After2
 func TestYield(t *testing.T) {
 	sample := `@yield head 
 After2
-@}`
+@end`
 	lex := NewLexer(string(sample), "TestLexer1")
 	tkn := lex.NextToken()
 	assert.Equal(t, YIELD, string(tkn.Type))
@@ -237,8 +237,8 @@ After2
 	assert.Equal(t, "After2\n", string(tkn.Literal))
 
 	tkn = lex.NextToken()
-	assert.Equal(t, ENDBLOCK, string(tkn.Type))
-	assert.Equal(t, "@}", string(tkn.Literal))
+	assert.Equal(t, END, string(tkn.Type))
+	assert.Equal(t, "@end", string(tkn.Literal))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, EOF, string(tkn.Type))
@@ -246,21 +246,21 @@ After2
 }
 
 func TestCodeBlock(t *testing.T) {
-	sample := `@{ if l.State == "test" { @}
-    @{ } @}
+	sample := `@code if l.State == "test" { @end
+    @code } @end
 `
 	lex := NewLexer(string(sample), "TestLexer1")
 	tkn := lex.NextToken()
 	assert.Equal(t, STARTBLOCK, string(tkn.Type))
-	assert.Equal(t, "@{", string(tkn.Literal))
+	assert.Equal(t, "@code", string(tkn.Literal))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, LITERAL, string(tkn.Type))
 	assert.Equal(t, "if l.State == \"test\" { ", string(tkn.Literal))
 
 	tkn = lex.NextToken()
-	assert.Equal(t, ENDBLOCK, string(tkn.Type))
-	assert.Equal(t, "@}", string(tkn.Literal))
+	assert.Equal(t, END, string(tkn.Type))
+	assert.Equal(t, "@end", string(tkn.Literal))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, LITERAL, string(tkn.Type))
@@ -268,15 +268,15 @@ func TestCodeBlock(t *testing.T) {
 
 	tkn = lex.NextToken()
 	assert.Equal(t, STARTBLOCK, string(tkn.Type))
-	assert.Equal(t, "@{", string(tkn.Literal))
+	assert.Equal(t, "@code", string(tkn.Literal))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, LITERAL, string(tkn.Type))
 	assert.Equal(t, "} ", string(tkn.Literal))
 
 	tkn = lex.NextToken()
-	assert.Equal(t, ENDBLOCK, string(tkn.Type))
-	assert.Equal(t, "@}", string(tkn.Literal))
+	assert.Equal(t, END, string(tkn.Type))
+	assert.Equal(t, "@end", string(tkn.Literal))
 
 	assert.Equal(t, "\n", lex.NextToken().Literal)
 
@@ -286,11 +286,11 @@ func TestCodeBlock(t *testing.T) {
 }
 
 func TestEndCodeBlock(t *testing.T) {
-	sample := `@}`
+	sample := `@end`
 	lex := NewLexer(string(sample), "TestLexer1")
 	tkn := lex.NextToken()
-	assert.Equal(t, ENDBLOCK, string(tkn.Type))
-	assert.Equal(t, "@}", string(tkn.Literal))
+	assert.Equal(t, END, string(tkn.Type))
+	assert.Equal(t, "@end", string(tkn.Literal))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, EOF, string(tkn.Type))
@@ -298,19 +298,19 @@ func TestEndCodeBlock(t *testing.T) {
 }
 
 func TestCodeBlock2(t *testing.T) {
-	sample := `@{ if l.State == "test" { @}`
+	sample := `@code if l.State == "test" { @end`
 	lex := NewLexer(string(sample), "TestLexer1")
 	tkn := lex.NextToken()
 	assert.Equal(t, STARTBLOCK, string(tkn.Type))
-	assert.Equal(t, "@{", string(tkn.Literal))
+	assert.Equal(t, "@code", string(tkn.Literal))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, LITERAL, string(tkn.Type))
 	assert.Equal(t, "if l.State == \"test\" { ", string(tkn.Literal))
 
 	tkn = lex.NextToken()
-	assert.Equal(t, ENDBLOCK, string(tkn.Type))
-	assert.Equal(t, "@}", string(tkn.Literal))
+	assert.Equal(t, END, string(tkn.Type))
+	assert.Equal(t, "@end", string(tkn.Literal))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, EOF, string(tkn.Type))
@@ -360,7 +360,7 @@ func (l *Lexer) readTils(chars []rune) string {
 	return string(l.runes[pos:l.position])
 }
 
-@}`
+@end`
 	lex := NewLexer(string(sample), "TestLexer1")
 	tkn := lex.NextToken()
 	assert.Equal(t, FUNCTS, string(tkn.Type))
@@ -375,8 +375,8 @@ func (l *Lexer) readTils(chars []rune) string {
 	//`, string(tkn.Literal))
 
 	tkn = lex.NextToken()
-	assert.Equal(t, ENDBLOCK, string(tkn.Type))
-	assert.Equal(t, "@}", string(tkn.Literal))
+	assert.Equal(t, "@end", string(tkn.Literal))
+	assert.Equal(t, END, string(tkn.Type))
 
 	tkn = lex.NextToken()
 	assert.Equal(t, EOF, string(tkn.Type))
@@ -401,7 +401,7 @@ func TestCodeBaseIf(t *testing.T) {
 <div>test1</div>
 @else
 <div>test2</div>
-@endif
+@end
 `
 	lex := NewLexer(string(sample), "TestLexer1")
 	var tk = lex.NextToken()
@@ -424,7 +424,7 @@ func TestCodeBaseIf(t *testing.T) {
 	fmt.Printf("M:%s at %d\n", tk.Literal, tk.Line)
 
 	tk = lex.NextToken()
-	assert.Equal(t, ENDIF, string(tk.Type))
+	assert.Equal(t, END, string(tk.Type))
 	fmt.Printf("M:%s at %d\n", tk.Literal, tk.Line)
 
 }

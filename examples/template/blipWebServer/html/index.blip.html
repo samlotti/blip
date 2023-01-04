@@ -1,0 +1,43 @@
+@// We extend root
+
+@extend root "Index Page"
+    @content styles
+<style>
+    .spacer {
+        margin: 32px;
+    }
+</style>
+
+    @end
+
+
+    @content mainContent
+
+<p>This is a sample project showing the main features of the Blip Template Engine.
+</p>
+
+    <button class="btn btn-lg btn-primary spacer" type="button" onclick="location.href='/users/listAll'">List Users</button>
+    <button class="btn btn-lg btn-success spacer" type="button" onclick="location.href='/users/listActive'">List Active</button>
+
+<br/>
+
+<div class="container spacer">
+<p>Don't forget that every time the template is changed it will need to be transpiled.</p>
+    <p>One approach to make this easier is to run blip with --watch on the template directory.</p>
+    <p></p>
+Then use <b><a href="https://github.com/cosmtrek/air">air</a></b> to run the application, this will restart the application whenever a template is changed.
+    </p>
+<strong>blip -dir="web/template" --rebuild</strong>
+</div>
+
+<div class="container spacer">
+In this directory run: <strong>./buildTemplates.sh</strong><br>
+Then in another terminal in this directory run <strong>air</strong>
+</div>
+
+
+        @// End content
+    @end
+
+@// End extend
+@end
