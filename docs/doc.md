@@ -84,8 +84,10 @@ Note that between commands in the template the content is written to the output.
 #### @arg name type
 This is how you can pass parameters to the template.  The @arg must at the root level and be the only command on the line.
 In our example we can pass a user as follows:
+```
 @arg user *User
 @arg allUsers []*User
+```
 
 The result of this will be the Render function requiring these parameters in the call.
 ```go
@@ -100,20 +102,34 @@ If is important that the context has the entry otherwise the template will retur
 
 This is great for common objects such as the loggedIn user and so in.
 
+Within the template the context variable can be accessed directly via the name.
+
+```html
+@context title string
+
+<title>@= title @</title>
+```
+
 #### @context name type = some initial value
 In this case the initial value is used if the value is not in the context.
 
 #### @// Single line comment
+```
 @// This comment will not be included in the generated code.
+```
+
 
 
 #### @* multiline comment  ..... til .. *@
-@* This is a multi line comment
+
+```
+@* This is a multi line comment 
 it will not be included in the generated code.
 
 Can be used to comment out some template code.
 
 *@
+```
 
 #### @include templateName arg1, arg2
 #### @include package.templateName arg1, arg2   <-- If not in the same package as calling template
@@ -176,7 +192,10 @@ Renders the content from the caller
 ### @content contentName ... @end
 Provides content for the extended template.
 
-### @if @then @else
+### @if .. @then .. @else .. @end
+Note each command is a single line
+
+
 @if .. go expression
     template content
 @else
@@ -191,6 +210,65 @@ Provides content for the extended template.
 @end
 ```
 
+### @for name in list ... @end
+Note @for is a single line
+
+```html
+    @arg users *[]User
+
+    @for user in users
+        <div>@= user.Name @</div>
+    @end
+```
+This becomes:
+```
+    for idx, user := range users {
+        .. template output for <div> ..
+    }
+```
+
+### @code  ... @end
+
+Outputs the 'GO' code directly into the template.  This is all content between @code and @end will be output literally into the generated source code. 
+
+```
+
+  @code
+    var name = fields["name"]
+    var pwd = fields["pwd"]
+    var acceptedTerm = fields["acceptedTerm"]
+    var isChecked = ""
+    if acceptedTerm == "on" {
+      isChecked = "checked"
+    }
+  @end
+  
+  <div>Name entered: @= name@</div>
+
+```
+
+###@func ... @end
+
+Similar to @code but the output will be placed outside the Render function.
+
+This allows functions to be placed into the template.  As with go functions in a package, duplicating the same functions withint templates can cause go compilation errors due to function already defined.
+
+```go
+@func
+    // A go function, will be in file but outside the process method
+    // Able to do this but may be better in another supporting file.
+    // For demo only.
+    func activeDesc(active bool) string {
+        if active {
+            return "Active"
+        } else {
+            return "InActive"
+        }
+    }
+@end
+```
+
+
 # File names
 Blip files are identified with the following patterns.
 
@@ -200,7 +278,8 @@ file.blip - This is a basic text blip file.  There will be no escaping of output
 file.blip.html - Html file output, escaping for html tags.  @= escapes, @== does not escape
 
 file.blip.{someOther} - Custom extension.
-@== Will 
+Create an implementation of IBlipEscaper and register it on app startup:
+**blipUtil.Instance().AddEscaper( "someOther", &MyEscaper{} )**
 
 file.blip.html.go - The result file of the template engine.  This is a standard go file and should not be edited as it will be overridden.
 Note that there is no blip version or date generated to make the file safe for source control as that only real changes will be detected.

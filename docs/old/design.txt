@@ -98,8 +98,6 @@ Note the expression must convert to a string
     The si variable can be used to call helper functions
     Code blocks expect to output the text directly to the go source code, so this must be valid
     go source.
-    .. to do .. lexer should go into block mode and capture
-    everything as raw up to the "@end" string
 @end
 
 @func
