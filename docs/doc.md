@@ -22,10 +22,15 @@ Blip Processing: Version: x.x.x
 ```
 
 
-# Installing blip.
+# Installing
 
-go get ...
-go install ..
+**Development version**
+
+go get -u github.com/samlotti/blip
+
+**Install the blip command line tool**
+
+go install github.com/samlotti/blip@latest
 
 
 # Blip supports 

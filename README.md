@@ -1,5 +1,8 @@
 # Blip Template Engine for Go
 
+![Blip](./docs/github/blip-github-preview.png)
+
+
 Blip is a templating language for Go. 
 It works by transpiling templates into pure Go and including them at compile time. 
 These templates are light wrappers around the Go language itself.  
@@ -19,6 +22,9 @@ Cons:
 * Not a dynamic template, will require transpiling and recompiling.
   * blip can watch the project and transpile automatically.
   * air can be used to auto restart applications
+
+
+
 
 # Docs
 * See the documentation: [Documentation](/docs/doc.md) 
