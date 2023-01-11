@@ -12,14 +12,15 @@ import (
 	"strings"
 )
 
-var Version = "0.8.7"
+var Version = "0.8.8"
 var Name = "Blip Template Compiler"
 
 type BlipOptions struct {
-	Sdir          string
-	Rebuild       bool
-	Watch         bool
-	SupportBranch string
+	Sdir              string
+	Rebuild           bool
+	Watch             bool
+	SupportBranch     string
+	RenderLineNumbers bool
 }
 
 func GteProcess(opt *BlipOptions) {
@@ -28,6 +29,7 @@ func GteProcess(opt *BlipOptions) {
 
 	fmt.Printf("Blip Processing: Version: %s\n", Version)
 	fmt.Printf("Rebuild All: %v\n", opt.Rebuild)
+	fmt.Printf("Render: LineNumbers %v\n", opt.Rebuild)
 	fmt.Printf("Source folder: %s\n", opt.Sdir)
 
 	processDir(opt.Sdir, opt)

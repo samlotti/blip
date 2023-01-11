@@ -32,10 +32,10 @@ func (r *Render) RenderOutput(o io.Writer, packageName string, templateName stri
 	r.outputImports(o, opt)
 	r.writeFuncts(o)
 
-	r.writeMainFunction(o, templateName, langType)
+	r.writeMainFunction(o, templateName, langType, opt)
 }
 
-func (r *Render) writeMainFunction(o io.Writer, templateName string, langType string) {
+func (r *Render) writeMainFunction(o io.Writer, templateName string, langType string, opt *BlipOptions) {
 	r.wStr(o, "\n\n").
 		wStr(o, "func ").
 		wStr(o, r.convertTemplateNameToFunctionName(templateName)).
@@ -75,7 +75,7 @@ func (r *Render) writeMainFunction(o io.Writer, templateName string, langType st
 		r.wStr(o, "\n")
 	} else {
 		r.writeContentVar(o)
-		r.writeBody(r.p.root, 1, o)
+		r.writeBody(r.p.root, 1, o, opt)
 	}
 
 	r.wStr(o, "\treturn")
@@ -202,7 +202,7 @@ func (r *Render) getTabsDepth(depth int) string {
 	return tabs
 }
 
-func (r *Render) writeBody(node ast, depth int, o io.Writer) {
+func (r *Render) writeBody(node ast, depth int, o io.Writer, opt *BlipOptions) {
 	parentbase, ok := node.(*astBase)
 
 	inCodeBlock := false
@@ -218,7 +218,10 @@ func (r *Render) writeBody(node ast, depth int, o io.Writer) {
 		var tabs = r.getTabsDepth(depth)
 
 		if !inCodeBlock {
-			r.wStr(o, fmt.Sprintf("%s// Line: %d\n", tabs, base.token.Line))
+			if opt.RenderLineNumbers {
+				// While line numbers look useful, they make a lot of differences in source control compare
+				r.wStr(o, fmt.Sprintf("%s// Line: %d\n", tabs, base.token.Line))
+			}
 		}
 
 		switch base.nodeType {
@@ -281,7 +284,7 @@ func (r *Render) writeBody(node ast, depth int, o io.Writer) {
 
 		}
 
-		r.writeBody(base, depth+1, o)
+		r.writeBody(base, depth+1, o, opt)
 
 		switch base.nodeType {
 		case NODE_INCLUDE:
