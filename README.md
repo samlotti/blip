@@ -30,7 +30,7 @@ Cons:
 * See the documentation: [Documentation](/docs/doc.md) 
 
 # Examples 
-* See the example blipWebServer: [BlipWebServerExample](/examples/template/blipWebServer) 
+* See the example blipWebServer: [BlipWebServerExample](https://github.com/samlotti/blip-example) 
 
 # Installing
 

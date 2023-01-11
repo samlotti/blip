@@ -17,6 +17,7 @@ func main() {
 	flag.BoolVar(&goptions.Rebuild, "rebuild", false, "rebuild all files")
 	flag.BoolVar(&goptions.Watch, "watch", false, "will watch the directory for file names/new files")
 	flag.StringVar(&goptions.SupportBranch, "supportBranch", "github.com/samlotti/blip/blipUtil", "Support branch name for include.")
+	flag.BoolVar(&goptions.RenderLineNumbers, "renderLineNumbers", false, "Render template line numbers in the generated Go code.  defaults false for easier diffing in source control. ex: adding one line will not show all next line numbers as differences ")
 
 	flag.Parse()
 
