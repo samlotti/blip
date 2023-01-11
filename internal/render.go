@@ -297,6 +297,9 @@ func (r *Render) writeBody(node ast, depth int, o io.Writer, opt *BlipOptions) {
 			r.wStr(o, fmt.Sprintf("%s}\n", tabs))
 			r.wStr(o, fmt.Sprintf("%s%s = context.WithValue(%s, ", tabs, r.contextVarName(), r.contextVarName()))
 			r.wStr(o, fmt.Sprintf("\"%s\", contentF%dS%d)", r.trimAll(base.token.Literal), r.includeDepth, cnum))
+			if !opt.RenderLineNumbers {
+				r.wStr(o, fmt.Sprintf("\n"))
+			}
 
 		}
 
