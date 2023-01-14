@@ -22,6 +22,7 @@ const (
 	LITERAL         = "LITERAL"
 	ARG             = "@arg"     // Literal will be the remainder of the line
 	CONTEXT         = "@context" // Context variable expected
+	ATDisplayBool   = "@bool="   // write integer
 	ATDisplayInt    = "@int="    // write integer
 	ATDisplayInt64  = "@int64="  // write integer
 	ATDisplay       = "@="       // Literal will be up to the eol/eof or next @   @= name @
@@ -346,6 +347,9 @@ func (l *Lexer) pickCommand() Token {
 		//if strings.Contains(tkn.Literal, "@") {
 		//	tkn = l.newTokenStr(ILLEGAL, fmt.Sprintf("@ invalid in the : %s", tkn.Type))
 		//}
+		advance = true
+	case "@bool=":
+		tkn = l.newTokenStr(ATDisplayBool, l.readTilStrSingleLine([]rune{'@'}))
 		advance = true
 	case "@int=":
 		tkn = l.newTokenStr(ATDisplayInt, l.readTilStrSingleLine([]rune{'@'}))

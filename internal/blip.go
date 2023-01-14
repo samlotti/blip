@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-var Version = "0.8.9"
+var Version = "0.8.10"
 var Name = "Blip Template Compiler"
 
 type BlipOptions struct {

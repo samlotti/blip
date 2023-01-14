@@ -17,6 +17,7 @@ const (
 	NODE_TEXT
 	NODE_DISPLAY
 	NODE_DISPLAY_RAW
+	NODE_DISPLAY_BOOL
 	NODE_DISPLAY_INT
 	NODE_DISPLAY_INT64
 	NODE_TOKEN_RAW
@@ -182,6 +183,8 @@ func (p *Parser) parseNode(node ast, isRoot bool, terminators []TokenType) *Toke
 			node.addChild(newAst(node, NODE_DISPLAY, token))
 		case ATDisplayInt:
 			node.addChild(newAst(node, NODE_DISPLAY_INT, token))
+		case ATDisplayBool:
+			node.addChild(newAst(node, NODE_DISPLAY_BOOL, token))
 		case ATDisplayInt64:
 			node.addChild(newAst(node, NODE_DISPLAY_INT64, token))
 		case ATDisplayUnsafe:

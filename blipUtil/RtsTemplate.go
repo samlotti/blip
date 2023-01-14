@@ -168,6 +168,20 @@ func (t *BlipUtil) HasError(ctx context.Context) bool {
 	return ctx.Value("errors") != nil
 }
 
+func (t *BlipUtil) WriteBool(w io.Writer, val bool) {
+	s := "true"
+	if !val {
+		s = "false"
+	}
+	_, err := w.Write([]byte(s))
+	if err != nil {
+		if err != nil {
+			log.Println(fmt.Sprintf("blip had error writing: %s\n", err))
+		}
+		panic(err)
+	}
+}
+
 func (t *BlipUtil) WriteInt(w io.Writer, val int) {
 	_, err := w.Write([]byte(strconv.Itoa(val)))
 	if err != nil {
