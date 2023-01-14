@@ -169,6 +169,7 @@ func TestParserText(t *testing.T) {
 <tr><td>"abc"</td></tr>
 @end
 @arg test string
+@bool= true @
 `
 	lex := NewLexer(sample, "TestLexer1")
 	parser := New(lex)
@@ -196,5 +197,5 @@ func TestParserText(t *testing.T) {
 	// @code is not touched
 	assert.True(t, strings.Contains(result, "\\n<tr><td>@code</td></tr>\\n"))
 	assert.True(t, strings.Contains(result, "<tr><td>\\\"abc\\\"</td></tr>\\n"))
-
+	assert.True(t, strings.Contains(result, "si.WriteBool(w, true )"))
 }

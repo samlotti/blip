@@ -82,6 +82,9 @@ This should never be used for user generated content.
 #### @int=    ... @  and @int64=    ... @
 The value must be int or int64 types and will for formatted using iToA conversion.
 
+#### @bool=    ... @ 
+The value must be a bool and will render as true or false
+
 #### @text  ... @end
 Writes the content to the output.  This is only needed if there is some @ signs in the content and don't want to escape with @@.
 Note that between commands in the template the content is written to the output.

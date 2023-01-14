@@ -233,6 +233,8 @@ func (r *Render) writeBody(node ast, depth int, o io.Writer, opt *BlipOptions) {
 			// si.WriteStr(w, game.Opponent)
 			r.wStr(o, fmt.Sprintf("%ssi.WriteStrSafe(w, %s, escaper)\n", tabs, r.addSlashes(base.token.Literal)))
 		// f.Sp "si.Write(w, indexpage1)")
+		case NODE_DISPLAY_BOOL:
+			r.wStr(o, fmt.Sprintf("%ssi.WriteBool(w, %s)\n", tabs, r.addSlashes(base.token.Literal)))
 		case NODE_DISPLAY_INT:
 			r.wStr(o, fmt.Sprintf("%ssi.WriteInt(w, %s)\n", tabs, r.addSlashes(base.token.Literal)))
 		case NODE_DISPLAY_INT64:
