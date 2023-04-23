@@ -1,7 +1,10 @@
 # Blip Template Engine for Go
 
-![Blip](./docs/github/blip-github-preview.png)
+[![Go Report Card](https://goreportcard.com/badge/github.com/samlotti/blip)](https://goreportcard.com/report/github.com/samlotti/blip)
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/samlotti/blip.svg)](https://pkg.go.dev/github.com/samlotti/blip)
+
+![Blip](./docs/github/blip-github-preview.png)
 
 Blip is a templating language for Go. 
 It works by transpiling templates into pure Go and including them at compile time. 
